@@ -38,14 +38,25 @@ export function PlaybackBar() {
       className="pointer-events-none absolute inset-x-0 bottom-4 z-30 flex justify-center px-3"
     >
       <GlassPanel className="pointer-events-auto flex items-center gap-1 rounded-full px-2 py-1.5">
-        <Button
-          size="icon"
-          aria-label={playing ? "Pause animation" : "Play animation"}
-          title="Play / pause (Space)"
-          onClick={() => updateAnimation({ playing: !playing })}
-        >
-          {playing ? <PauseIcon /> : <PlayIcon />}
-        </Button>
+        <span className="relative inline-flex">
+          {playing && (
+            <motion.span
+              aria-hidden
+              className="pointer-events-none absolute inset-0 rounded-full border border-ink/30"
+              animate={{ scale: [1, 1.45], opacity: [0.6, 0] }}
+              transition={{ duration: 1.4, repeat: Infinity, ease: "easeOut" }}
+            />
+          )}
+          <Button
+            size="icon"
+            active={playing}
+            aria-label={playing ? "Pause animation" : "Play animation"}
+            title="Play / pause (Space)"
+            onClick={() => updateAnimation({ playing: !playing })}
+          >
+            {playing ? <PauseIcon /> : <PlayIcon />}
+          </Button>
+        </span>
         <Button
           size="icon"
           aria-label="Reverse playback"

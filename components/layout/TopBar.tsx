@@ -25,6 +25,49 @@ import {
 import { useMeshStore } from "@/store/meshStore";
 import { useUiStore } from "@/store/uiStore";
 
+function MoveTool() {
+  const [pulse, setPulse] = useState(0);
+  return (
+    <span className="relative inline-flex">
+      <AnimatePresence>
+        {pulse > 0 && (
+          <motion.span
+            key={pulse}
+            aria-hidden
+            className="pointer-events-none absolute inset-0 rounded-full border border-ink/40"
+            initial={{ scale: 1, opacity: 0.7 }}
+            animate={{ scale: 1.5, opacity: 0 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.55, ease: "easeOut" }}
+          />
+        )}
+      </AnimatePresence>
+      <Button
+        size="sm"
+        active
+        title="Move (V)"
+        aria-label="Move tool, active"
+        onClick={() => setPulse((p) => p + 1)}
+      >
+        <motion.span
+          key={pulse}
+          className="flex"
+          initial={false}
+          animate={
+            pulse > 0
+              ? { rotate: [0, -16, 12, 0], scale: [1, 1.3, 1.12, 1] }
+              : undefined
+          }
+          transition={{ duration: 0.5, ease: [0.32, 0.72, 0, 1] }}
+        >
+          <PointsIcon />
+        </motion.span>
+        Move
+      </Button>
+    </span>
+  );
+}
+
 function AddLineMenu() {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -106,10 +149,7 @@ export function TopBar() {
       </div>
 
       <div className="absolute left-1/2 flex -translate-x-1/2 items-center gap-1" role="toolbar" aria-label="Tools">
-        <Button size="sm" active title="Move (V)" aria-label="Move tool, active">
-          <PointsIcon />
-          Move
-        </Button>
+        <MoveTool />
         <AddLineMenu />
       </div>
 

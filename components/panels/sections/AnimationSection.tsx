@@ -47,6 +47,15 @@ export function AnimationSection() {
         onCommitStart={commit}
         format={(v) => `${Math.round(v * 100)}%`}
       />
+      <Slider
+        label="Hue flow"
+        value={animation.hueFlow ?? 0}
+        min={0}
+        max={1}
+        onChange={(hueFlow) => updateAnimation({ hueFlow })}
+        onCommitStart={commit}
+        format={(v) => `${Math.round(v * 100)}%`}
+      />
       <Segmented
         label="Cursor force"
         options={MOUSE_MODES}
