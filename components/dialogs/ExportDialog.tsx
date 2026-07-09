@@ -23,8 +23,8 @@ import {
   exportSvg,
   exportTailwind,
   parseImportedJson,
-  recordVideo,
   renderImageBlob,
+  renderVideoBlob,
 } from "@/lib/export";
 import { useMeshStore } from "@/store/meshStore";
 import { useUiStore } from "@/store/uiStore";
@@ -53,6 +53,19 @@ const DURATIONS = [
   { value: "3", label: "3s" },
   { value: "5", label: "5s" },
   { value: "10", label: "10s" },
+  { value: "20", label: "20s" },
+] as const;
+
+const VIDEO_SIZES = [
+  { value: "1080", label: "1080p", w: 1920, h: 1080 },
+  { value: "1440", label: "1440p", w: 2560, h: 1440 },
+  { value: "2160", label: "4K", w: 3840, h: 2160 },
+  { value: "square", label: "Square", w: 2160, h: 2160 },
+] as const;
+
+const VIDEO_FPS = [
+  { value: "30", label: "30 fps" },
+  { value: "60", label: "60 fps" },
 ] as const;
 
 const CODE_FORMATS = [
@@ -80,6 +93,8 @@ export function ExportDialog() {
   const [error, setError] = useState<string | null>(null);
 
   const [duration, setDuration] = useState<(typeof DURATIONS)[number]["value"]>("5");
+  const [videoSize, setVideoSize] = useState<(typeof VIDEO_SIZES)[number]["value"]>("2160");
+  const [videoFps, setVideoFps] = useState<(typeof VIDEO_FPS)[number]["value"]>("60");
   const [recProgress, setRecProgress] = useState<number | null>(null);
   const stopRef = useRef<(() => void) | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -102,11 +117,16 @@ export function ExportDialog() {
     setBusy(true);
     setError(null);
     try {
-      const blob = await renderImageBlob(doc, engine.time, {
-        width: clamp(Math.round(width) || 4000, 16, 8192),
-        height: clamp(Math.round(height) || 3000, 16, 8192),
-        format,
-      });
+      const blob = await renderImageBlob(
+        doc,
+        engine.time,
+        {
+          width: clamp(Math.round(width) || 4000, 16, 8192),
+          height: clamp(Math.round(height) || 3000, 16, 8192),
+          format,
+        },
+        engine.flowTime
+      );
       downloadBlob(blob, `mesha-gradient.${format}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Export failed.");
@@ -116,15 +136,15 @@ export function ExportDialog() {
   };
 
   const startRecording = async () => {
-    const canvas = engine.canvasEl;
-    if (!canvas) {
-      setError("Canvas is not ready yet.");
-      return;
-    }
     setError(null);
     const seconds = Number(duration);
+    const size = VIDEO_SIZES.find((s) => s.value === videoSize) ?? VIDEO_SIZES[2];
     try {
-      const rec = recordVideo(canvas, seconds);
+      const rec = renderVideoBlob(
+        doc,
+        { width: size.w, height: size.h, fps: Number(videoFps), seconds },
+        { time: engine.time, flowTime: engine.flowTime }
+      );
       stopRef.current = rec.stop;
       setRecProgress(0);
       const started = performance.now();
@@ -135,7 +155,8 @@ export function ExportDialog() {
       window.clearInterval(timer);
       setRecProgress(null);
       stopRef.current = null;
-      downloadBlob(blob, `mesha-gradient.${rec.mimeType.includes("mp4") ? "mp4" : "webm"}`);
+      const ext = rec.mimeType.includes("mp4") ? "mp4" : "webm";
+      downloadBlob(blob, `mesha-gradient-${size.label.toLowerCase()}.${ext}`);
     } catch (err) {
       setRecProgress(null);
       setError(err instanceof Error ? err.message : "Recording failed.");
@@ -217,10 +238,16 @@ export function ExportDialog() {
 
         {tab === "video" && (
           <>
-            <Segmented label="Duration" options={DURATIONS} value={duration} onChange={setDuration} />
+            <Segmented label="Resolution" options={VIDEO_SIZES} value={videoSize} onChange={setVideoSize} />
+            <div className="flex flex-wrap gap-4">
+              <Segmented label="Frame rate" options={VIDEO_FPS} value={videoFps} onChange={setVideoFps} />
+              <Segmented label="Duration" options={DURATIONS} value={duration} onChange={setDuration} />
+            </div>
             <p className="text-[11px] leading-relaxed text-faint">
-              Records the live animated artboard at up to 60 fps (WebM).
-              Keep this tab visible while recording.
+              Renders the animation offscreen at the full chosen resolution —
+              drift, hue flow and grain all move — and encodes at a bitrate
+              matched to the pixel rate, so 4K stays crisp. Keep this tab
+              visible while recording.
             </p>
             {recProgress === null ? (
               <Button variant="primary" onClick={startRecording} className="self-start">
