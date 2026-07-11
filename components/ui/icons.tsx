@@ -1,0 +1,92 @@
+/**
+ * Minimal 16×16 stroke icon set, drawn by hand. One consistent 1.5px
+ * stroke weight keeps the chrome quiet — no icon library needed.
+ */
+
+import type { SVGProps } from "react";
+
+function Icon({ children, ...props }: SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+      {...props}
+    >
+      {children}
+    </svg>
+  );
+}
+
+export const PlayIcon = (p: SVGProps<SVGSVGElement>) => (
+  <Icon {...p}><path d="M5 3.5v9l7.5-4.5L5 3.5Z" fill="currentColor" stroke="none" /></Icon>
+);
+export const PauseIcon = (p: SVGProps<SVGSVGElement>) => (
+  <Icon {...p}><path d="M5.5 3.5v9M10.5 3.5v9" strokeWidth="2" /></Icon>
+);
+export const ReverseIcon = (p: SVGProps<SVGSVGElement>) => (
+  <Icon {...p}><path d="M8 3a5 5 0 1 1-4.7 3.3" /><path d="M3 3v3.5h3.5" /></Icon>
+);
+export const UndoIcon = (p: SVGProps<SVGSVGElement>) => (
+  <Icon {...p}><path d="M6.5 4 3.5 7l3 3" /><path d="M3.5 7h5.75a3.25 3.25 0 0 1 0 6.5H7" /></Icon>
+);
+export const RedoIcon = (p: SVGProps<SVGSVGElement>) => (
+  <Icon {...p}><path d="m9.5 4 3 3-3 3" /><path d="M12.5 7H6.75a3.25 3.25 0 0 0 0 6.5H9" /></Icon>
+);
+export const PlusIcon = (p: SVGProps<SVGSVGElement>) => (
+  <Icon {...p}><path d="M8 3.5v9M3.5 8h9" /></Icon>
+);
+export const TrashIcon = (p: SVGProps<SVGSVGElement>) => (
+  <Icon {...p}><path d="M3 4.5h10M6.5 4.5v-1a1 1 0 0 1 1-1h1a1 1 0 0 1 1 1v1M4.5 4.5l.5 8a1 1 0 0 0 1 .9h4a1 1 0 0 0 1-.9l.5-8" /></Icon>
+);
+export const CloseIcon = (p: SVGProps<SVGSVGElement>) => (
+  <Icon {...p}><path d="m4 4 8 8M12 4l-8 8" /></Icon>
+);
+export const ChevronIcon = (p: SVGProps<SVGSVGElement>) => (
+  <Icon {...p}><path d="m5 6.5 3 3 3-3" /></Icon>
+);
+export const ShuffleIcon = (p: SVGProps<SVGSVGElement>) => (
+  <Icon {...p}><path d="M3 4.5h1.8c.9 0 1.7.4 2.2 1.1l2 2.8c.5.7 1.3 1.1 2.2 1.1H13" /><path d="M3 11.5h1.8c.9 0 1.7-.4 2.2-1.1l.4-.55M8.6 5.6l.4-.5c.5-.7 1.3-1.1 2.2-1.1H13" /><path d="m11.5 2.5 2 1.5-2 1.5M11.5 9.5l2 1.5-2 1.5" /></Icon>
+);
+export const DownloadIcon = (p: SVGProps<SVGSVGElement>) => (
+  <Icon {...p}><path d="M8 2.5v7M5 7l3 3 3-3M3 12.5h10" /></Icon>
+);
+export const SunIcon = (p: SVGProps<SVGSVGElement>) => (
+  <Icon {...p}><circle cx="8" cy="8" r="2.75" /><path d="M8 1.5v1.6M8 12.9v1.6M1.5 8h1.6M12.9 8h1.6M3.4 3.4l1.1 1.1M11.5 11.5l1.1 1.1M12.6 3.4l-1.1 1.1M4.5 11.5l-1.1 1.1" /></Icon>
+);
+export const MoonIcon = (p: SVGProps<SVGSVGElement>) => (
+  <Icon {...p}><path d="M13 9.3A5.5 5.5 0 0 1 6.7 3a5.5 5.5 0 1 0 6.3 6.3Z" /></Icon>
+);
+export const PointsIcon = (p: SVGProps<SVGSVGElement>) => (
+  <Icon {...p}><circle cx="5" cy="5" r="1.6" /><circle cx="11.5" cy="6.5" r="1.6" /><circle cx="7" cy="11.5" r="1.6" /></Icon>
+);
+export const EyeIcon = (p: SVGProps<SVGSVGElement>) => (
+  <Icon {...p}><path d="M1.8 8S4 3.8 8 3.8 14.2 8 14.2 8 12 12.2 8 12.2 1.8 8 1.8 8Z" /><circle cx="8" cy="8" r="2" /></Icon>
+);
+export const EyeOffIcon = (p: SVGProps<SVGSVGElement>) => (
+  <Icon {...p}><path d="M1.8 8S4 3.8 8 3.8c1 0 1.9.26 2.7.65M14.2 8S12 12.2 8 12.2c-1 0-1.9-.26-2.7-.65" /><path d="m3 13 10-10" /></Icon>
+);
+export const GridIcon = (p: SVGProps<SVGSVGElement>) => (
+  <Icon {...p}><rect x="2.5" y="2.5" width="4.5" height="4.5" rx="1.2" /><rect x="9" y="2.5" width="4.5" height="4.5" rx="1.2" /><rect x="2.5" y="9" width="4.5" height="4.5" rx="1.2" /><rect x="9" y="9" width="4.5" height="4.5" rx="1.2" /></Icon>
+);
+export const SlidersIcon = (p: SVGProps<SVGSVGElement>) => (
+  <Icon {...p}><path d="M3 5h4.5M10.5 5H13M3 11h2.5M8.5 11H13" /><circle cx="9" cy="5" r="1.5" /><circle cx="7" cy="11" r="1.5" /></Icon>
+);
+export const KeyboardIcon = (p: SVGProps<SVGSVGElement>) => (
+  <Icon {...p}><rect x="1.8" y="4" width="12.4" height="8" rx="1.5" /><path d="M4.2 6.5h.01M6.6 6.5h.01M9 6.5h.01M11.4 6.5h.01M4.2 9h.01M11.4 9h.01M6 9.5h4" /></Icon>
+);
+export const CheckIcon = (p: SVGProps<SVGSVGElement>) => (
+  <Icon {...p}><path d="m3.5 8.5 3 3 6-7" /></Icon>
+);
+export const CopyIcon = (p: SVGProps<SVGSVGElement>) => (
+  <Icon {...p}><rect x="5.5" y="5.5" width="8" height="8" rx="1.5" /><path d="M10.5 5.5v-2a1 1 0 0 0-1-1h-6a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2" /></Icon>
+);
+export const FilmIcon = (p: SVGProps<SVGSVGElement>) => (
+  <Icon {...p}><rect x="2" y="3" width="12" height="10" rx="1.5" /><path d="M5 3v10M11 3v10M2 6h3M2 10h3M11 6h3M11 10h3" /></Icon>
+);

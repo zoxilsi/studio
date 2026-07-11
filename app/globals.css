@@ -1,0 +1,207 @@
+@import "tailwindcss";
+
+/* Class-based dark mode: <html class="dark"> is set pre-hydration. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ------------------------------ design tokens ----------------------------- */
+/* Panels float over an arbitrary user-colored gradient, so surfaces get
+   their contrast from their own translucency + blur, themed light/dark. */
+
+:root {
+  --workspace: #e9e9ee;
+  --glass: rgba(255, 255, 255, 0.68);
+  --glass-soft: rgba(15, 18, 25, 0.05);
+  --glass-border: rgba(15, 18, 25, 0.1);
+  --ink: #15171d;
+  --ink-invert: #fbfbfd;
+  --muted: rgba(21, 23, 29, 0.68);
+  --faint: rgba(21, 23, 29, 0.42);
+  --hover: rgba(15, 18, 25, 0.07);
+  --focus: #5b5bd6;
+}
+
+.dark {
+  --workspace: #0d0d13;
+  --glass: rgba(14, 16, 24, 0.56);
+  --glass-soft: rgba(255, 255, 255, 0.06);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --ink: #f4f5f8;
+  --ink-invert: #0f1015;
+  --muted: rgba(244, 245, 248, 0.66);
+  --faint: rgba(244, 245, 248, 0.38);
+  --hover: rgba(255, 255, 255, 0.09);
+  --focus: #8b8bf4;
+}
+
+@theme inline {
+  --color-workspace: var(--workspace);
+  --color-glass: var(--glass);
+  --color-glass-soft: var(--glass-soft);
+  --color-glass-border: var(--glass-border);
+  --color-ink: var(--ink);
+  --color-ink-invert: var(--ink-invert);
+  --color-muted: var(--muted);
+  --color-faint: var(--faint);
+  --color-hover: var(--hover);
+  --color-focus: var(--focus);
+  --shadow-panel: 0 12px 48px rgba(5, 8, 18, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  --shadow-lift: 0 4px 18px rgba(5, 8, 18, 0.22);
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+}
+
+/* --------------------------------- base ----------------------------------- */
+
+html,
+body {
+  height: 100%;
+  overscroll-behavior: none;
+}
+
+body {
+  background: #05060f;
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: color-mix(in oklab, var(--focus) 35%, transparent);
+}
+
+/* ------------------------------- scrollbars ------------------------------- */
+
+.mesha-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: var(--glass-border) transparent;
+}
+.mesha-scroll::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.mesha-scroll::-webkit-scrollbar-thumb {
+  background: var(--glass-border);
+  border-radius: 9999px;
+}
+.mesha-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* ------------------------------ range slider ------------------------------ */
+/* Track fill driven by --fill (set inline from React). */
+
+.mesha-range {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 18px;
+  background: transparent;
+  cursor: pointer;
+  outline: none;
+}
+
+.mesha-range::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 9999px;
+  background: linear-gradient(
+    to right,
+    var(--ink) var(--fill, 50%),
+    var(--glass-soft) var(--fill, 50%)
+  );
+}
+.mesha-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  margin-top: -5px;
+  height: 14px;
+  width: 14px;
+  border-radius: 9999px;
+  background: var(--ink);
+  border: 2.5px solid var(--ink-invert);
+  box-shadow: 0 1px 6px rgba(5, 8, 18, 0.35);
+  transition: transform 0.15s cubic-bezier(0.32, 0.72, 0, 1);
+}
+.mesha-range:hover::-webkit-slider-thumb,
+.mesha-range:active::-webkit-slider-thumb {
+  transform: scale(1.2);
+}
+.mesha-range:focus-visible::-webkit-slider-thumb {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.mesha-range::-moz-range-track {
+  height: 4px;
+  border-radius: 9999px;
+  background: var(--glass-soft);
+}
+.mesha-range::-moz-range-progress {
+  height: 4px;
+  border-radius: 9999px;
+  background: var(--ink);
+}
+.mesha-range::-moz-range-thumb {
+  height: 14px;
+  width: 14px;
+  border-radius: 9999px;
+  background: var(--ink);
+  border: 2.5px solid var(--ink-invert);
+  box-shadow: 0 1px 6px rgba(5, 8, 18, 0.35);
+  transition: transform 0.15s cubic-bezier(0.32, 0.72, 0, 1);
+}
+.mesha-range:hover::-moz-range-thumb {
+  transform: scale(1.2);
+}
+.mesha-range:focus-visible::-moz-range-thumb {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+/* ------------------------------ brand pieces ------------------------------ */
+
+.mesha-orb {
+  background: conic-gradient(
+    from 0deg,
+    #5b3df5,
+    #19c2ff,
+    #8ff5d2,
+    #ff5d8f,
+    #5b3df5
+  );
+  animation: mesha-orb-spin 7s linear infinite;
+}
+
+@keyframes mesha-orb-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Film-grain texture over the UI (the shader has its own grain for exports). */
+.mesha-noise {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 180px 180px;
+  opacity: 0.05;
+  mix-blend-mode: overlay;
+}
+
+/* ----------------------------- reduced motion ----------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ------------------------------ high contrast ----------------------------- */
+
+@media (prefers-contrast: more) {
+  :root,
+  .dark {
+    --glass-border: rgba(128, 128, 160, 0.6);
+  }
+}
