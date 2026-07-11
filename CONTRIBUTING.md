@@ -1,6 +1,6 @@
 # Contributing
 
-Thanks for your interest in improving Mesha. This guide covers the
+Thanks for your interest in improving zoxilsi studio. This guide covers the
 branching model, commit conventions and local checks.
 
 ## Branching model

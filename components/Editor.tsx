@@ -60,16 +60,7 @@ export function Editor() {
           <Artboard />
           <PlaybackBar />
           <p className="absolute bottom-5 left-5 hidden text-[10px] text-faint lg:block">
-            Mesha — mesh gradients, rendered in WebGL · © 2026 · Designed &amp;
-            created by{" "}
-            <a
-              href="https://x.com/zoxilsi"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="pointer-events-auto font-medium text-muted underline-offset-2 transition-colors hover:text-ink hover:underline"
-            >
-              zoxilsi
-            </a>
+            zoxilsi studio — mesh gradients, rendered in WebGL · © 2026
           </p>
         </main>
         <Inspector />

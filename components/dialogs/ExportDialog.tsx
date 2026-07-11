@@ -3,7 +3,7 @@
 /**
  * Export hub: raster images at any resolution (exact offscreen re-render
  * of the two-pass pipeline), WebM video captured from the live artboard,
- * code formats, and Mesha project files (export + import).
+ * code formats, and zoxilsi studio project files (export + import).
  */
 
 import { useMemo, useRef, useState } from "react";
@@ -127,7 +127,7 @@ export function ExportDialog() {
         },
         engine.flowTime
       );
-      downloadBlob(blob, `mesha-gradient.${format}`);
+      downloadBlob(blob, `studio-gradient.${format}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Export failed.");
     } finally {
@@ -156,7 +156,7 @@ export function ExportDialog() {
       setRecProgress(null);
       stopRef.current = null;
       const ext = rec.mimeType.includes("mp4") ? "mp4" : "webm";
-      downloadBlob(blob, `mesha-gradient-${size.label.toLowerCase()}.${ext}`);
+      downloadBlob(blob, `studio-gradient-${size.label.toLowerCase()}.${ext}`);
     } catch (err) {
       setRecProgress(null);
       setError(err instanceof Error ? err.message : "Recording failed.");
@@ -174,7 +174,7 @@ export function ExportDialog() {
   };
 
   const codeExt: Record<CodeFormat, string> = {
-    json: "mesha.json",
+    json: "studio.json",
     css: "css",
     tailwind: "html",
     react: "tsx",
@@ -275,7 +275,7 @@ export function ExportDialog() {
         {tab === "code" && (
           <>
             <Segmented label="Language" options={CODE_FORMATS} value={codeFormat} onChange={setCodeFormat} />
-            <pre className="mesha-scroll max-h-60 overflow-auto rounded-xl border border-glass-border bg-glass-soft p-3.5 font-mono text-[11px] leading-relaxed text-muted">
+            <pre className="studio-scroll max-h-60 overflow-auto rounded-xl border border-glass-border bg-glass-soft p-3.5 font-mono text-[11px] leading-relaxed text-muted">
               {code}
             </pre>
             <div className="flex flex-wrap gap-2">
@@ -293,7 +293,7 @@ export function ExportDialog() {
               </Button>
               <Button
                 variant="outline"
-                onClick={() => downloadText(code, `mesha-gradient.${codeExt[codeFormat]}`)}
+                onClick={() => downloadText(code, `studio-gradient.${codeExt[codeFormat]}`)}
               >
                 <DownloadIcon /> Download
               </Button>
@@ -303,7 +303,7 @@ export function ExportDialog() {
               <input
                 ref={fileRef}
                 type="file"
-                accept=".json,.mesha,application/json"
+                accept=".json,.zoxilsi,application/json"
                 className="hidden"
                 onChange={(e) => {
                   const file = e.target.files?.[0];

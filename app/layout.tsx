@@ -51,7 +51,7 @@ export const viewport: Viewport = {
 };
 
 /** Applies the persisted (or system) theme before first paint — no flash. */
-const themeScript = `(function(){try{var t=localStorage.getItem("mesha-theme");if(t!=="light"&&t!=="dark"){t=window.matchMedia("(prefers-color-scheme: light)").matches?"light":"dark"}document.documentElement.classList.toggle("dark",t==="dark");document.documentElement.style.colorScheme=t}catch(e){}})()`;
+const themeScript = `(function(){try{var t=localStorage.getItem("zoxilsi-theme");if(t!=="light"&&t!=="dark"){t=window.matchMedia("(prefers-color-scheme: light)").matches?"light":"dark"}document.documentElement.classList.toggle("dark",t==="dark");document.documentElement.style.colorScheme=t}catch(e){}})()`;
 
 export default function RootLayout({
   children,

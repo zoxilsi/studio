@@ -1,6 +1,6 @@
 # Performance & optimization
 
-## What already keeps Mesha fast
+## What already keeps zoxilsi studio fast
 
 ### One draw call, one pass
 

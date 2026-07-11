@@ -1,12 +1,12 @@
 /**
- * Core domain types for the Mesha lattice-mesh gradient engine.
+ * Core domain types for the zoxilsi studio lattice-mesh gradient engine.
  *
  * A document is a rows×cols lattice of color nodes (row-major). The
  * rendered surface is a bicubic Hermite (Ferguson) patch grid: node
  * positions + per-node tangents shape the geometry, and node colors are
  * interpolated across the warped surface in a selectable color space.
  * Everything is a plain serializable object so history snapshots and
- * project files (.mesha JSON) are lossless.
+ * project files (.zoxilsi JSON) are lossless.
  */
 
 export interface Vec2 {

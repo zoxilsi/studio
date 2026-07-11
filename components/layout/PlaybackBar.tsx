@@ -71,7 +71,7 @@ export function PlaybackBar() {
           <span className="font-mono text-[10px] tabular-nums text-faint">{speed.toFixed(1)}×</span>
           <input
             type="range"
-            className="mesha-range !w-20"
+            className="studio-range !w-20"
             style={{ "--fill": `${((speed - 0.1) / 2.9) * 100}%` } as CSSProperties}
             min={0.1}
             max={3}

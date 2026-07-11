@@ -49,7 +49,7 @@ export function PresetsRail() {
               </h2>
             </header>
 
-            <div className="mesha-scroll flex shrink-0 gap-1 overflow-x-auto border-b border-glass-border px-3 py-2">
+            <div className="studio-scroll flex shrink-0 gap-1 overflow-x-auto border-b border-glass-border px-3 py-2">
               {(["All", ...PRESET_CATEGORIES] as const).map((c) => (
                 <button
                   key={c}
@@ -68,7 +68,7 @@ export function PresetsRail() {
               ))}
             </div>
 
-            <div className="mesha-scroll grid flex-1 auto-rows-min grid-cols-2 gap-2 overflow-y-auto overscroll-contain p-3">
+            <div className="studio-scroll grid flex-1 auto-rows-min grid-cols-2 gap-2 overflow-y-auto overscroll-contain p-3">
               {visible.map((preset, i) => (
                 <motion.button
                   key={preset.id}

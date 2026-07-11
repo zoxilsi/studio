@@ -73,7 +73,7 @@ export function Dialog({ open, onClose, title, children, className }: DialogProp
                   <CloseIcon />
                 </Button>
               </header>
-              <div className="mesha-scroll flex-1 overflow-y-auto p-5">{children}</div>
+              <div className="studio-scroll flex-1 overflow-y-auto p-5">{children}</div>
             </GlassPanel>
           </motion.div>
         </motion.div>

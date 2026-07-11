@@ -64,7 +64,7 @@ export function Slider({
       </span>
       <input
         type="range"
-        className="mesha-range"
+        className="studio-range"
         style={{ "--fill": `${percent}%` } as CSSProperties}
         min={min}
         max={max}

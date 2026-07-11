@@ -32,7 +32,7 @@ function applyThemeToDom(theme: Theme) {
   document.documentElement.classList.toggle("dark", theme === "dark");
   document.documentElement.style.colorScheme = theme;
   try {
-    localStorage.setItem("mesha-theme", theme);
+    localStorage.setItem("zoxilsi-theme", theme);
   } catch {
     // Storage unavailable (private mode) — theme just won't persist.
   }

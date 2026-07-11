@@ -1,6 +1,6 @@
 /**
  * Export system: raster images at any resolution (PNG/JPG/WebP), animated
- * video rendered offscreen at up to 4K, project files (.mesha JSON,
+ * video rendered offscreen at up to 4K, project files (.zoxilsi JSON,
  * re-importable), and CSS/SVG/React/HTML code approximations.
  *
  * Raster and video exports run the exact two-pass pipeline (Hermite mesh →
@@ -338,7 +338,7 @@ export function exportCss(doc: MeshDoc): string {
   const { backgroundColor, backgroundImage } = docToCssBackground(doc);
   const layers = backgroundImage.split("), radial").join("),\n    radial");
   return [
-    "/* Mesha gradient — CSS approximation of the WebGL mesh */",
+    "/* zoxilsi studio gradient — CSS approximation of the WebGL mesh */",
     ".mesh-gradient {",
     `  background-color: ${backgroundColor};`,
     `  background-image:\n    ${layers};`,
@@ -350,7 +350,7 @@ export function exportTailwind(doc: MeshDoc): string {
   const { backgroundColor, backgroundImage } = docToCssBackground(doc);
   const value = backgroundImage.replace(/\s+/g, "_");
   return [
-    "<!-- Mesha gradient — Tailwind arbitrary values -->",
+    "<!-- zoxilsi studio gradient — Tailwind arbitrary values -->",
     `<div class="h-96 w-full rounded-3xl bg-[${backgroundColor}] [background-image:${value}]"></div>`,
   ].join("\n");
 }
@@ -387,9 +387,9 @@ export function exportSvg(doc: MeshDoc, width = 1600, height = 1200): string {
 export function exportReact(doc: MeshDoc): string {
   const { backgroundColor, backgroundImage } = docToCssBackground(doc);
   return [
-    "// Mesha gradient — drop-in React component (static CSS approximation).",
+    "// zoxilsi studio gradient — drop-in React component (static CSS approximation).",
     "// For the exact animated WebGL mesh, export the project JSON and",
-    "// reload it in Mesha.",
+    "// reload it in zoxilsi studio.",
     "export function MeshGradient({ className }: { className?: string }) {",
     "  return (",
     "    <div",
@@ -413,7 +413,7 @@ export function exportHtml(doc: MeshDoc): string {
     "<head>",
     '  <meta charset="utf-8"/>',
     '  <meta name="viewport" content="width=device-width, initial-scale=1"/>',
-    "  <title>Mesha gradient</title>",
+    "  <title>zoxilsi studio gradient</title>",
     "  <style>",
     "    html, body { margin: 0; height: 100%; }",
     "    .mesh-gradient {",
@@ -433,7 +433,7 @@ export function exportHtml(doc: MeshDoc): string {
 /* ------------------------------ project files ----------------------------- */
 
 export function exportJson(doc: MeshDoc): string {
-  return JSON.stringify({ app: "mesha", version: 2, doc }, null, 2);
+  return JSON.stringify({ app: "zoxilsi-studio", version: 2, doc }, null, 2);
 }
 
 export function parseImportedJson(text: string): MeshDoc {
@@ -448,7 +448,7 @@ export function parseImportedJson(text: string): MeshDoc {
     !doc?.effects ||
     !doc?.animation
   ) {
-    throw new Error("Not a valid Mesha project file.");
+    throw new Error("Not a valid zoxilsi studio project file.");
   }
   const parsed = doc as MeshDoc;
   // Files saved before hue flow existed stay exactly as they looked.

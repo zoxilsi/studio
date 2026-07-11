@@ -38,7 +38,7 @@ export function Inspector() {
           aria-label="Inspector"
         >
           <div className="flex h-full w-[17.5rem] flex-col">
-            <div className="mesha-scroll flex-1 overflow-y-auto overscroll-contain">
+            <div className="studio-scroll flex-1 overflow-y-auto overscroll-contain">
               <Section title="Settings" defaultOpen>
                 <SettingsSection />
               </Section>
