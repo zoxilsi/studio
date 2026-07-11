@@ -11,6 +11,7 @@
   "dependencies": {
     "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "^9.6.1",
+    "@vercel/analytics": "^2.0.1",
     "framer-motion": "^12.42.2",
     "next": "15.5.19",
     "react": "19.1.0",
