@@ -47,6 +47,7 @@ const SIZES = [
   { label: "Full HD", w: 1920, h: 1080 },
   { label: "4K", w: 3840, h: 2160 },
   { label: "Square 2048", w: 2048, h: 2048 },
+  { label: "Portrait", w: 2160, h: 3840 }
 ];
 
 const DURATIONS = [
