@@ -539,6 +539,43 @@ function drawThumbnailPattern(
   if (t === "hex") {
     drawHexThumb(ctx, w, h, step);
   }
+  if (t === "triangles") {
+    for (let y = 0; y < h + step; y += step) {
+      for (let x = 0; x < w + step; x += step) {
+        ctx.beginPath();
+        ctx.moveTo(x, y - step / 2);
+        ctx.lineTo(x + step / 2, y + step / 2);
+        ctx.lineTo(x - step / 2, y + step / 2);
+        ctx.closePath();
+        ctx.stroke();
+      }
+    }
+  }
+  if (t === "zigzag") {
+    for (let y = step / 2; y < h + step; y += step) {
+      ctx.beginPath();
+      for (let x = 0; x <= w + step; x += step / 2) {
+        const yy = y + (Math.round(x / (step / 2)) % 2 === 0 ? -step / 4 : step / 4);
+        x === 0 ? ctx.moveTo(x, yy) : ctx.lineTo(x, yy);
+      }
+      ctx.stroke();
+    }
+  }
+  if (t === "stars") {
+    for (let y = step / 2; y < h + step; y += step) {
+      for (let x = step / 2; x < w + step; x += step) {
+        ctx.beginPath();
+        for (let i = 0; i < 5; i++) {
+          const a = (i * 4 * Math.PI) / 5 - Math.PI / 2;
+          const px = x + (step * 0.4) * Math.cos(a);
+          const py = y + (step * 0.4) * Math.sin(a);
+          i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+        }
+        ctx.closePath();
+        ctx.stroke();
+      }
+    }
+  }
   ctx.restore();
 }
 

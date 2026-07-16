@@ -177,6 +177,19 @@ body {
   }
 }
 
+/* A whisper of a heartbeat on the Support button — barely there, just enough
+   to feel alive. Killed by the reduced-motion block below. */
+.support-heart {
+  transform-origin: center;
+  animation: support-beat 3s ease-in-out infinite;
+}
+@keyframes support-beat {
+  0%, 48%, 100% { transform: scale(1); }
+  12% { transform: scale(1.13); }
+  24% { transform: scale(1.01); }
+  32% { transform: scale(1.08); }
+}
+
 /* Film-grain texture over the UI (the shader has its own grain for exports). */
 .studio-noise {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");

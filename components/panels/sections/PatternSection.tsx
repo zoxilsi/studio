@@ -148,6 +148,33 @@ const PATTERN_OPTIONS: { value: PatternType; label: string; icon: React.ReactNod
       </g>
     ),
   },
+  {
+    value: "triangles",
+    label: "Triangles",
+    icon: (
+      <g fill="none" stroke={S.stroke} strokeWidth={S.strokeWidth} strokeLinejoin="round">
+        <path d="M12 4l7 12H5z" />
+      </g>
+    ),
+  },
+  {
+    value: "zigzag",
+    label: "Zigzag",
+    icon: (
+      <g fill="none" stroke={S.stroke} strokeWidth={S.strokeWidth} strokeLinejoin="round">
+        <path d="M3 14l4.5-6 4.5 6 4.5-6 4.5 6" />
+      </g>
+    ),
+  },
+  {
+    value: "stars",
+    label: "Stars",
+    icon: (
+      <g fill="none" stroke={S.stroke} strokeWidth={S.strokeWidth} strokeLinejoin="round">
+        <path d="M12 3l2.5 6.5L21 10l-5 4.5 1.5 7-6-3.5-6 3.5 1.5-7L2 10l6.5-.5z" />
+      </g>
+    ),
+  },
 ];
 
 export function PatternSection() {

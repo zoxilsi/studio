@@ -44,6 +44,7 @@ uniform float uPosterize;
 uniform float uSaturation;
 uniform float uContrast;
 uniform float uBrightness;
+uniform float uInvert;
 uniform float uPatternType;
 uniform float uPatternSize;
 uniform float uPatternOpacity;
@@ -145,12 +146,33 @@ float patternMask(vec2 uv) {
     float e = 0.5 - hexDist(g);
     return 1.0 - smoothstep(th * 0.5 - aa, th * 0.5 + aa, e);
   }
-  // rounded-tile mosaic — mask covers the grout between rounded squares
+  if (type < 12.5) {
+    vec2 f = fract(p) - 0.5;
+    float rad = 0.08;
+    vec2 q = abs(f) - (0.5 - th * 0.5 - rad);
+    float d = length(max(q, 0.0)) + min(max(q.x, q.y), 0.0) - rad;
+    return smoothstep(-aa, aa, d);
+  }
+  if (type < 13.5) {
+    vec2 f = fract(p) - 0.5;
+    float d = max(abs(f.x) * 1.7320508 + f.y, -f.y * 2.0) * 0.5;
+    return 1.0 - smoothstep(th * 0.5 - aa, th * 0.5 + aa, abs(d - 0.25));
+  }
+  if (type < 14.5) {
+    vec2 f = fract(p);
+    float wave = abs(f.x - 0.5) * 2.0;
+    float d = abs(f.y - wave);
+    return 1.0 - smoothstep(th * 0.5 - aa, th * 0.5 + aa, d * 0.707);
+  }
   vec2 f = fract(p) - 0.5;
-  float rad = 0.08;
-  vec2 q = abs(f) - (0.5 - th * 0.5 - rad);
-  float d = length(max(q, 0.0)) + min(max(q.x, q.y), 0.0) - rad;
-  return smoothstep(-aa, aa, d);
+  float a = atan(f.x, f.y);
+  float r = 3.14159 / 5.0;
+  float st = floor(a / r + 0.5);
+  float a1 = st * r;
+  vec2 sc = vec2(sin(a1), cos(a1));
+  vec2 sc2 = vec2(sin(a1 + r * 2.0), cos(a1 + r * 2.0));
+  float d = max(dot(f, sc), dot(f, sc2));
+  return 1.0 - smoothstep(th * 0.5 - aa, th * 0.5 + aa, abs(d - 0.2));
 }
 
 vec3 sampleScene(vec2 uv, float blur) {
@@ -248,6 +270,8 @@ void main() {
   color += (g - 0.5) * uGrain * 0.16;
   color += (hash21(vUv * uResolution) - 0.5) * (1.5 / 255.0);
 
+  color = mix(color, 1.0 - color, uInvert);
+
   gl_FragColor = vec4(clamp(color, 0.0, 1.0), 1.0);
 }
 `;
@@ -270,6 +294,9 @@ export const PATTERN_INDEX: Record<PatternType, number> = {
   rings: 10,
   hex: 11,
   tiles: 12,
+  triangles: 13,
+  zigzag: 14,
+  stars: 15,
 };
 
 /** Push every effects value into the post-pass uniforms. */
@@ -292,6 +319,7 @@ export function applyEffectsUniforms(
   u.uSaturation.value = effects.saturation;
   u.uContrast.value = effects.contrast;
   u.uBrightness.value = effects.brightness;
+  u.uInvert.value = effects.invert ?? 0;
   u.uPatternType.value = PATTERN_INDEX[effects.patternType ?? "none"] ?? 0;
   u.uPatternSize.value = effects.patternSize ?? 24;
   u.uPatternOpacity.value = effects.patternOpacity ?? 0;
@@ -344,6 +372,7 @@ export function createPostUniforms() {
     uSaturation: { value: 1 },
     uContrast: { value: 1 },
     uBrightness: { value: 1 },
+    uInvert: { value: 0 },
     uPatternType: { value: 0 },
     uPatternSize: { value: 24 },
     uPatternOpacity: { value: 0 },

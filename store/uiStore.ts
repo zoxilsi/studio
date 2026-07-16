@@ -15,6 +15,9 @@ interface UiStore {
   presetsOpen: boolean;
   exportOpen: boolean;
   shortcutsOpen: boolean;
+  supportOpen: boolean;
+  /** Post-export nudge: shown once an export download completes. */
+  supportNudgeOpen: boolean;
   showHandles: boolean;
 
   setTheme: (theme: Theme) => void;
@@ -23,6 +26,8 @@ interface UiStore {
   togglePresets: () => void;
   setExportOpen: (open: boolean) => void;
   setShortcutsOpen: (open: boolean) => void;
+  setSupportOpen: (open: boolean) => void;
+  setSupportNudgeOpen: (open: boolean) => void;
   toggleHandles: () => void;
   syncThemeFromDom: () => void;
 }
@@ -44,6 +49,8 @@ export const useUiStore = create<UiStore>((set, get) => ({
   presetsOpen: true,
   exportOpen: false,
   shortcutsOpen: false,
+  supportOpen: false,
+  supportNudgeOpen: false,
   showHandles: true,
 
   setTheme: (theme) => {
@@ -55,6 +62,8 @@ export const useUiStore = create<UiStore>((set, get) => ({
   togglePresets: () => set((s) => ({ presetsOpen: !s.presetsOpen })),
   setExportOpen: (open) => set({ exportOpen: open }),
   setShortcutsOpen: (open) => set({ shortcutsOpen: open }),
+  setSupportOpen: (open) => set({ supportOpen: open }),
+  setSupportNudgeOpen: (open) => set({ supportNudgeOpen: open }),
   toggleHandles: () => set((s) => ({ showHandles: !s.showHandles })),
 
   /** Adopt whatever the pre-hydration script applied to <html>. */

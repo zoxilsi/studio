@@ -15,6 +15,7 @@ import { Inspector } from "@/components/panels/Inspector";
 import { PresetsRail } from "@/components/panels/PresetsRail";
 import { ExportDialog } from "@/components/dialogs/ExportDialog";
 import { ShortcutsDialog } from "@/components/dialogs/ShortcutsDialog";
+import { SupportDialog } from "@/components/dialogs/SupportDialog";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { useMeshStore } from "@/store/meshStore";
 import { useUiStore } from "@/store/uiStore";
@@ -75,6 +76,7 @@ export function Editor() {
       </div>
       <ExportDialog />
       <ShortcutsDialog />
+      <SupportDialog />
     </div>
     </MotionConfig>
   );

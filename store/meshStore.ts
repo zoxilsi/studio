@@ -82,6 +82,7 @@ export function defaultDoc(): MeshDoc {
       saturation: 1,
       contrast: 1,
       brightness: 1,
+      invert: 0,
     },
   };
 }

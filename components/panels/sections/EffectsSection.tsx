@@ -24,6 +24,7 @@ export function EffectsSection() {
       <Slider label="Vignette" value={effects.vignette} min={0} max={1} onChange={(vignette) => updateEffects({ vignette })} onCommitStart={commit} format={pct} />
       <Slider label="Pixelate" value={effects.pixelate} min={0} max={160} step={1} onChange={(pixelate) => updateEffects({ pixelate })} onCommitStart={commit} format={(v) => (v === 0 ? "Off" : v.toFixed(0))} />
       <Slider label="Posterize" value={effects.posterize} min={0} max={16} step={1} onChange={(posterize) => updateEffects({ posterize })} onCommitStart={commit} format={(v) => (v < 2 ? "Off" : v.toFixed(0))} />
+      <Slider label="Invert" value={effects.invert ?? 0} min={0} max={1} onChange={(invert) => updateEffects({ invert })} onCommitStart={commit} format={pct} />
     </>
   );
 }

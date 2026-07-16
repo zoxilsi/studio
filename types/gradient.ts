@@ -64,7 +64,10 @@ export type PatternType =
   | "waves"
   | "rings"
   | "hex"
-  | "tiles";
+  | "tiles"
+  | "triangles"
+  | "zigzag"
+  | "stars";
 
 /**
  * A positioned radial light source composited over the gradient — the
@@ -100,6 +103,7 @@ export interface EffectsSettings {
   saturation: number; // 0–2
   contrast: number; // 0.5–1.5
   brightness: number; // 0.5–1.5
+  invert: number;
   patternType: PatternType;
   patternSize: number; // 4–80 cells across the artboard width
   patternOpacity: number; // 0–1

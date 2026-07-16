@@ -105,3 +105,13 @@ export const GithubIcon = (p: SVGProps<SVGSVGElement>) => (
 export const StarIcon = (p: SVGProps<SVGSVGElement>) => (
   <Icon {...p}><path d="m8 2 1.8 3.7 4 .6-2.9 2.8.7 4.1-3.6-1.9-3.6 1.9.7-4.1-2.9-2.8 4-.6L8 2Z" /></Icon>
 );
+export const HeartIcon = (p: SVGProps<SVGSVGElement>) => (
+  <Icon {...p}><path d="M8 13.3C6.5 12.1 2.8 9.6 2.8 6.4A2.6 2.6 0 0 1 8 4.7a2.6 2.6 0 0 1 5.2 1.7c0 3.2-3.7 5.7-5.2 6.9Z" /></Icon>
+);
+export const CoffeeIcon = (p: SVGProps<SVGSVGElement>) => (
+  <Icon {...p}>
+    <path d="M3 6.5h8.5v3.2a2.8 2.8 0 0 1-2.8 2.8H5.8A2.8 2.8 0 0 1 3 9.7V6.5Z" />
+    <path d="M11.5 7.2H13a1.4 1.4 0 0 1 0 2.8h-1.5" />
+    <path d="M5.3 2.6c-.5.6-.5 1.2 0 1.8M8 2.6c-.5.6-.5 1.2 0 1.8" />
+  </Icon>
+);

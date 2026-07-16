@@ -82,8 +82,16 @@ type CodeFormat = (typeof CODE_FORMATS)[number]["value"];
 export function ExportDialog() {
   const open = useUiStore((s) => s.exportOpen);
   const setOpen = useUiStore((s) => s.setExportOpen);
+  const setSupportNudgeOpen = useUiStore((s) => s.setSupportNudgeOpen);
   const doc = useMeshStore((s) => s.doc);
   const applyDoc = useMeshStore((s) => s.applyDoc);
+
+  // Close export, then let the support nudge slide in — the small delay
+  // avoids two backdrops overlapping mid-transition.
+  const nudgeSupport = () => {
+    setOpen(false);
+    window.setTimeout(() => setSupportNudgeOpen(true), 350);
+  };
 
   const [tab, setTab] = useState<(typeof TABS)[number]["value"]>("image");
   const [format, setFormat] = useState<(typeof IMG_FORMATS)[number]["value"]>("png");
@@ -128,6 +136,7 @@ export function ExportDialog() {
         engine.flowTime
       );
       downloadBlob(blob, `studio-gradient.${format}`);
+      nudgeSupport();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Export failed.");
     } finally {
@@ -157,6 +166,7 @@ export function ExportDialog() {
       stopRef.current = null;
       const ext = rec.mimeType.includes("mp4") ? "mp4" : "webm";
       downloadBlob(blob, `studio-gradient-${size.label.toLowerCase()}.${ext}`);
+      nudgeSupport();
     } catch (err) {
       setRecProgress(null);
       setError(err instanceof Error ? err.message : "Recording failed.");
