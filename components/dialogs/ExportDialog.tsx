@@ -6,7 +6,7 @@
  * code formats, and zoxilsi studio project files (export + import).
  */
 
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState, useEffect } from "react";
 import { Dialog } from "@/components/ui/Dialog";
 import { Segmented } from "@/components/ui/Segmented";
 import { Button } from "@/components/ui/Button";
@@ -95,8 +95,15 @@ export function ExportDialog() {
 
   const [tab, setTab] = useState<(typeof TABS)[number]["value"]>("image");
   const [format, setFormat] = useState<(typeof IMG_FORMATS)[number]["value"]>("png");
-  const [width, setWidth] = useState(4000);
-  const [height, setHeight] = useState(3000);
+  const [width, setWidth] = useState(doc.canvas.width);
+  const [height, setHeight] = useState(doc.canvas.height);
+
+  useEffect(() => {
+    if (open) {
+      setWidth(doc.canvas.width);
+      setHeight(doc.canvas.height);
+    }
+  }, [open, doc.canvas.width, doc.canvas.height]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -147,11 +154,20 @@ export function ExportDialog() {
   const startRecording = async () => {
     setError(null);
     const seconds = Number(duration);
-    const size = VIDEO_SIZES.find((s) => s.value === videoSize) ?? VIDEO_SIZES[2];
+    const sizeTemplate = VIDEO_SIZES.find((s) => s.value === videoSize) ?? VIDEO_SIZES[2];
+    
+    // Wire export to follow canvas aspect ratio
+    const ratio = doc.canvas.width / doc.canvas.height;
+    const isPortrait = ratio < 1;
+    const shortEdge = Math.min(sizeTemplate.w, sizeTemplate.h);
+    const makeEven = (n: number) => 2 * Math.round(n / 2);
+    const w = makeEven(isPortrait ? shortEdge : shortEdge * ratio);
+    const h = makeEven(isPortrait ? shortEdge / ratio : shortEdge);
+
     try {
       const rec = renderVideoBlob(
         doc,
-        { width: size.w, height: size.h, fps: Number(videoFps), seconds },
+        { width: w, height: h, fps: Number(videoFps), seconds },
         { time: engine.time, flowTime: engine.flowTime }
       );
       stopRef.current = rec.stop;
@@ -165,7 +181,7 @@ export function ExportDialog() {
       setRecProgress(null);
       stopRef.current = null;
       const ext = rec.mimeType.includes("mp4") ? "mp4" : "webm";
-      downloadBlob(blob, `studio-gradient-${size.label.toLowerCase()}.${ext}`);
+      downloadBlob(blob, `studio-gradient-${sizeTemplate.label.toLowerCase()}.${ext}`);
       nudgeSupport();
     } catch (err) {
       setRecProgress(null);
