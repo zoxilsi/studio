@@ -6,17 +6,23 @@ on:
   pull_request:
     branches: [main, develop]
 
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
 jobs:
   verify:
     name: Type-check, lint & build
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
 
       - name: Install pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: 9
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -28,7 +34,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Type-check
-        run: pnpm exec tsc --noEmit
+        run: pnpm typecheck
 
       - name: Lint
         run: pnpm lint

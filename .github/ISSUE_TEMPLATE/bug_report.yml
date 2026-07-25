@@ -1,0 +1,60 @@
+name: Bug report
+description: Report a reproducible problem in zoxilsi studio
+title: "[Bug]: "
+labels: ["bug", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping improve zoxilsi studio. Search existing issues before submitting a new one.
+        For security vulnerabilities, follow SECURITY.md instead of filing a public issue.
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before submitting
+      options:
+        - label: I searched open and closed issues for duplicates.
+          required: true
+        - label: I can reproduce this on the latest version.
+          required: true
+        - label: This is not a security vulnerability.
+          required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: What happened, and what did you expect to happen?
+      placeholder: "Expected: …\nActual: …"
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      placeholder: "1. Open …\n2. Click …\n3. Observe …"
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version or commit
+      placeholder: "v0.1.0 or commit SHA"
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: Include OS, browser name/version, device, and GPU if relevant.
+      placeholder: "macOS 15, Chrome 138, Apple M2"
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Logs, screenshots, or project file
+      description: Drag files here. Remove private information first.
+      render: shell
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+

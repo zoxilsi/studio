@@ -95,7 +95,8 @@ Each preset thumbnail is rasterized from the actual mesh data, so what you see i
 git clone https://github.com/zoxilsi/studio.git
 cd studio
 
-# Install dependencies (requires Node 18.18+, pnpm recommended)
+# Install dependencies (requires Node 20 LTS and pnpm 9)
+corepack enable
 pnpm install
 
 # Start the dev server
@@ -106,9 +107,9 @@ pnpm dev
 ### Production Build
 ```bash
 pnpm build      # optimized static export → ./out
-pnpm start      # preview the build locally
 pnpm lint       # ESLint check
-pnpm type-check # TypeScript verification
+pnpm typecheck  # TypeScript verification
+pnpm check      # all pull-request checks
 ```
 
 ## Architecture
@@ -228,11 +229,18 @@ All features, shaders, and the surface math are custom implementations. No AI ge
 
 Bug reports and feature requests are welcome! Please open an issue on [GitHub](https://github.com/zoxilsi/studio/issues).
 
-For code contributions, please:
+For code contributions, please read [CONTRIBUTING.md](CONTRIBUTING.md), then:
 1. Fork the repository
-2. Create a feature branch (`feature/your-feature`)
+2. Create a focused branch (`feature/your-feature` or `fix/your-fix`)
 3. Commit with conventional messages
-4. Open a pull request against `develop`
+4. Run `pnpm check`
+5. Open a pull request against `main`
+
+Community standards:
+
+- [Code of Conduct](CODE_OF_CONDUCT.md)
+- [Security policy](.github/SECURITY.md)
+- [Support guide](.github/SUPPORT.md)
 
 ## Credits
 
