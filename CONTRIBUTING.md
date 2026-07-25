@@ -4,6 +4,11 @@ Thanks for your interest in improving zoxilsi studio. This guide covers the
 development workflow and the quality bar for contributions. By participating,
 you agree to follow the [Code of Conduct](CODE_OF_CONDUCT.md).
 
+You do not need to be an expert or contribute code. Bug reports, design
+feedback, documentation, testing, accessibility improvements, translations,
+presets, and thoughtful ideas all help the project grow. If this is your first
+open-source contribution, mention it—we are happy to help.
+
 ## Before you start
 
 - Search existing issues and pull requests first.
@@ -11,6 +16,12 @@ you agree to follow the [Code of Conduct](CODE_OF_CONDUCT.md).
 - Never report a vulnerability publicly; follow the
   [security policy](.github/SECURITY.md).
 - Small documentation and obvious bug-fix pull requests can be opened directly.
+
+Look for issues labeled
+[`good first issue`](https://github.com/zoxilsi/studio/labels/good%20first%20issue)
+or [`help wanted`](https://github.com/zoxilsi/studio/labels/help%20wanted).
+If nothing fits, start a
+[Discussion](https://github.com/zoxilsi/studio/discussions).
 
 ## Branching model
 

@@ -3,28 +3,23 @@ updates:
   - package-ecosystem: npm
     directory: /
     schedule:
-      interval: weekly
-      day: monday
+      # One predictable maintenance PR per month keeps the project current
+      # without filling the pull-request list.
+      interval: monthly
       time: "05:00"
       timezone: Asia/Kolkata
-    open-pull-requests-limit: 5
+    open-pull-requests-limit: 1
     versioning-strategy: increase-if-necessary
     groups:
-      development-dependencies:
-        dependency-type: development
-      production-minor-and-patch:
-        dependency-type: production
+      safe-updates:
+        patterns: ["*"]
         update-types: ["minor", "patch"]
+    ignore:
+      # Major upgrades often require migrations and should be proposed and
+      # tested intentionally by a maintainer.
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
     labels: ["dependencies"]
     commit-message:
       prefix: chore
       include: scope
-
-  - package-ecosystem: github-actions
-    directory: /
-    schedule:
-      interval: monthly
-    labels: ["dependencies", "github-actions"]
-    commit-message:
-      prefix: ci
-

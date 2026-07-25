@@ -2,6 +2,9 @@
 
 <!-- What does this PR change and why? -->
 
+Thanks for contributing! First-time contributors are very welcome. If you need
+help with any checklist item, say so in the notes—maintainers can guide you.
+
 ## Related issue
 
 <!-- Use "Closes #123" so GitHub closes the issue after merge. -->
@@ -24,8 +27,8 @@ Closes #
 ## Checklist
 
 - [ ] `pnpm check` passes locally
-- [ ] I added or updated tests where appropriate
-- [ ] I updated documentation where appropriate
+- [ ] I added or updated tests where appropriate, or explained why none are needed
+- [ ] I updated documentation where appropriate, or this change needs no docs
 - [ ] Verified the change in the running app
 - [ ] Self-reviewed the diff
 - [ ] This PR contains no secrets, credentials, or unrelated changes
