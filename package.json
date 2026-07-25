@@ -31,8 +31,8 @@
     "@vercel/analytics": "^2.0.1",
     "framer-motion": "^12.42.2",
     "next": "15.5.19",
-    "react": "19.1.0",
-    "react-dom": "19.1.0",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
     "three": "^0.185.0",
     "zustand": "^5.0.14"
   },
