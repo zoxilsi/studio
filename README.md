@@ -227,7 +227,18 @@ All features, shaders, and the surface math are custom implementations. No AI ge
 
 ## Contributing
 
-Bug reports and feature requests are welcome! Please open an issue on [GitHub](https://github.com/zoxilsi/studio/issues).
+Everyone is welcome here—whether you write code, design interfaces, test
+exports, improve documentation, translate content, report bugs, suggest ideas,
+or simply share the project.
+
+Easy ways to help:
+
+- Try the editor and submit a clear [bug report](https://github.com/zoxilsi/studio/issues/new/choose)
+- Suggest a focused improvement or new preset
+- Pick a [`good first issue`](https://github.com/zoxilsi/studio/labels/good%20first%20issue)
+- Improve documentation, accessibility, performance, or browser compatibility
+- Review open pull requests and help test changes
+- Star, share, or [support the project](https://github.com/sponsors/zoxilsi)
 
 For code contributions, please read [CONTRIBUTING.md](CONTRIBUTING.md), then:
 1. Fork the repository
@@ -241,6 +252,11 @@ Community standards:
 - [Code of Conduct](CODE_OF_CONDUCT.md)
 - [Security policy](.github/SECURITY.md)
 - [Support guide](.github/SUPPORT.md)
+
+Not sure where to begin? Open a
+[Discussion](https://github.com/zoxilsi/studio/discussions) and introduce
+yourself. Questions are welcome, and maintainers can help you find a useful
+first contribution.
 
 ## Credits
 
