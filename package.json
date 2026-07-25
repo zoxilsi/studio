@@ -30,7 +30,7 @@
     "@react-three/fiber": "^9.6.1",
     "@vercel/analytics": "^2.0.1",
     "framer-motion": "^12.42.2",
-    "next": "15.5.19",
+    "next": "16.2.11",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "three": "^0.185.0",
