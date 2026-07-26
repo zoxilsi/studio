@@ -23,12 +23,13 @@ export function GitHubStars() {
       target="_blank"
       rel="noopener noreferrer"
       aria-label="GitHub Repository"
-      className="hidden md:inline-flex h-8 items-center gap-1.5 rounded-full border border-glass-border bg-glass-soft px-3 text-muted transition-colors duration-150 hover:bg-hover hover:text-ink"
+      title="View GitHub repository"
+      className="inline-flex h-8 w-8 shrink-0 items-center justify-center gap-1.5 rounded-full border border-glass-border bg-glass-soft px-0 text-muted transition-colors duration-150 hover:bg-hover hover:text-ink md:w-auto md:px-3"
     >
       <GithubIcon className="h-4 w-4 shrink-0" />
-      <StarIcon className="h-3.5 w-3.5 shrink-0" />
+      <StarIcon className="hidden h-3.5 w-3.5 shrink-0 md:block" />
       {stars !== null && (
-        <span className="tabular-nums font-mono text-[11px] font-semibold">{stars}</span>
+        <span className="hidden tabular-nums font-mono text-[11px] font-semibold md:inline">{stars}</span>
       )}
     </a>
   );
