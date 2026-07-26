@@ -117,7 +117,7 @@ function buildStudioPreset(spec: StudioSpec): Preset {
   } else {
     rows = spec.colors.length;
     cols = spec.cols ?? 6;
-    colorAt = (r, _c) => spec.colors[r];
+    colorAt = (r) => spec.colors[r];
   }
 
   const nodes = createNodes(rows, cols, colorAt).map((node, i) => {

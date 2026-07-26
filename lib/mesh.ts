@@ -530,8 +530,12 @@ function drawThumbnailPattern(
     for (let y = step; y < h + step; y += step) {
       ctx.beginPath();
       for (let x = 0; x <= w; x += 2) {
-        const yy = y + Math.sin((x / step) * Math.PI) * step * 0.35;
-        x === 0 ? ctx.moveTo(x, yy) : ctx.lineTo(x, yy);
+      const yy = y + Math.sin((x / step) * Math.PI) * step * 0.35;
+      if (x === 0) {
+        ctx.moveTo(x, yy);
+      } else {
+        ctx.lineTo(x, yy);
+      }
       }
       ctx.stroke();
     }
@@ -556,7 +560,11 @@ function drawThumbnailPattern(
       ctx.beginPath();
       for (let x = 0; x <= w + step; x += step / 2) {
         const yy = y + (Math.round(x / (step / 2)) % 2 === 0 ? -step / 4 : step / 4);
-        x === 0 ? ctx.moveTo(x, yy) : ctx.lineTo(x, yy);
+        if (x === 0) {
+          ctx.moveTo(x, yy);
+        } else {
+          ctx.lineTo(x, yy);
+        }
       }
       ctx.stroke();
     }
@@ -566,14 +574,18 @@ function drawThumbnailPattern(
       for (let x = step / 2; x < w + step; x += step) {
         ctx.beginPath();
         for (let i = 0; i < 5; i++) {
-          const a = (i * 4 * Math.PI) / 5 - Math.PI / 2;
-          const px = x + (step * 0.4) * Math.cos(a);
-          const py = y + (step * 0.4) * Math.sin(a);
-          i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+        const a = (i * 4 * Math.PI) / 5 - Math.PI / 2;
+        const px = x + (step * 0.4) * Math.cos(a);
+        const py = y + (step * 0.4) * Math.sin(a);
+        if (i === 0) {
+          ctx.moveTo(px, py);
+        } else {
+          ctx.lineTo(px, py);
         }
-        ctx.closePath();
-        ctx.stroke();
       }
+      ctx.closePath();
+      ctx.stroke();
+    }
     }
   }
   ctx.restore();
@@ -597,7 +609,11 @@ function drawHexThumb(
         const ang = (Math.PI / 3) * i;
         const px = x + r * Math.cos(ang);
         const py = y + r * Math.sin(ang);
-        i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+        if (i === 0) {
+          ctx.moveTo(px, py);
+        } else {
+          ctx.lineTo(px, py);
+        }
       }
       ctx.closePath();
       ctx.stroke();
