@@ -128,6 +128,11 @@ export function hexToBlendSpace(hex: string, space: ColorSpace): [number, number
         srgbToLinear(rgb.g),
         srgbToLinear(rgb.b)
       );
+    case "hsl": {
+      const [h, s, l] = rgbToHsl(rgb);
+      const angle = h * 2 * Math.PI;
+      return [s * Math.cos(angle), s * Math.sin(angle), l];
+    }
   }
 }
 
