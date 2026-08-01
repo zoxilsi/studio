@@ -14,6 +14,7 @@ const COLOR_SPACES = [
   { value: "linear-rgb", label: "Linear" },
   { value: "oklab", label: "OKLab" },
   { value: "lch", label: "LCH" },
+  { value: "hsl", label: "HSL" },
 ] as const;
 
 export function ColorSection() {

@@ -30,7 +30,7 @@ export interface MeshNode {
 }
 
 /** How node colors are interpolated across the surface. */
-export type ColorSpace = "rgb" | "linear-rgb" | "oklab" | "lch";
+export type ColorSpace = "rgb" | "linear-rgb" | "oklab" | "lch" | "hsl";
 
 export type Topology = "rectangle" | "circle";
 

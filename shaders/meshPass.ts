@@ -63,11 +63,37 @@ vec3 cielabToLinear(vec3 lab) {
   );
 }
 
+vec3 hslToRgb(vec3 hsl) {
+  float h = hsl.x;
+  float s = hsl.y;
+  float l = hsl.z;
+  float c = (1.0 - abs(2.0 * l - 1.0)) * s;
+  float x = c * (1.0 - abs(mod(h * 6.0, 2.0) - 1.0));
+  float m = l - c / 2.0;
+  vec3 rgb = vec3(0.0);
+  if (h < 1.0 / 6.0)      rgb = vec3(c, x, 0.0);
+  else if (h < 2.0 / 6.0) rgb = vec3(x, c, 0.0);
+  else if (h < 3.0 / 6.0) rgb = vec3(0.0, c, x);
+  else if (h < 4.0 / 6.0) rgb = vec3(0.0, x, c);
+  else if (h < 5.0 / 6.0) rgb = vec3(x, 0.0, c);
+  else                    rgb = vec3(c, 0.0, x);
+  return rgb + vec3(m);
+}
+
+vec3 decodeHsl(vec3 c) {
+  float l = c.z;
+  float s = length(c.xy);
+  float angle = atan(c.y, c.x);
+  float h = fract(angle / (2.0 * 3.14159265359));
+  return hslToRgb(vec3(h, s, l));
+}
+
 void main() {
   vec3 c = vColor;
   if (uColorSpace == 1) c = linearToSrgb(c);
   else if (uColorSpace == 2) c = linearToSrgb(oklabToLinear(c));
   else if (uColorSpace == 3) c = linearToSrgb(cielabToLinear(c));
+  else if (uColorSpace == 4) c = decodeHsl(c);
   gl_FragColor = vec4(clamp(c, 0.0, 1.0), 1.0);
 }
 `;
@@ -77,4 +103,5 @@ export const COLOR_SPACE_INDEX: Record<string, number> = {
   "linear-rgb": 1,
   oklab: 2,
   lch: 3,
+  hsl: 4,
 };
