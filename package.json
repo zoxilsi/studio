@@ -1,16 +1,15 @@
 {
-  "name": "zoxilsi-studio",
+  "name": "jlk-wallpaper-studio",
   "version": "0.1.0",
   "private": true,
-  "description": "A browser-based, real-time WebGL mesh gradient editor.",
+  "description": "A touch-first wallpaper studio with mesh gradients and editable shapes.",
   "license": "MIT",
-  "homepage": "https://studio.zoxilsi.cc",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/zoxilsi/studio.git"
+    "url": "git+https://github.com/JK-levi/wallpaper-studio.git"
   },
   "bugs": {
-    "url": "https://github.com/zoxilsi/studio/issues"
+    "url": "https://github.com/JK-levi/wallpaper-studio/issues"
   },
   "packageManager": "pnpm@9.15.9",
   "engines": {
@@ -23,7 +22,9 @@
     "start": "next start",
     "lint": "eslint . --max-warnings=0",
     "typecheck": "tsc --noEmit",
-    "check": "pnpm typecheck && pnpm lint && pnpm build"
+    "check": "pnpm typecheck && pnpm lint && pnpm build",
+    "test": "playwright test",
+    "test:production": "NEXT_PUBLIC_BASE_PATH=/wallpaper-studio pnpm build && playwright test"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.7",
@@ -38,6 +39,7 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
+    "@playwright/test": "^1.65.0",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",

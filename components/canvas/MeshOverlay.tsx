@@ -68,6 +68,7 @@ export function MeshOverlay() {
   const handleRefs = useRef(new Map<string, HTMLButtonElement>());
   const handleLineRefs = useRef<(SVGLineElement | null)[]>([]);
   const keyboardCommitted = useRef(false);
+  const dragOffset = useRef({ x: 0, y: 0 });
   const dragTangent = useRef<{ which: "tu" | "tv"; sign: 1 | -1 } | null>(null);
 
   /* ------------------------- per-frame positioning ------------------------- */
@@ -226,8 +227,8 @@ export function MeshOverlay() {
             type="button"
             aria-label={`Bezier handle ${h.key} for selected point`}
             className={cn(
-              "pointer-events-auto absolute left-0 top-0 h-3 w-3 cursor-grab touch-none rounded-full border border-black/40 bg-white shadow-md outline-none active:cursor-grabbing",
-              "hover:scale-125 focus-visible:ring-2 focus-visible:ring-focus"
+              "pointer-events-auto absolute left-0 top-0 flex h-11 w-11 items-center justify-center cursor-grab touch-none rounded-full outline-none active:cursor-grabbing",
+              "group focus-visible:ring-2 focus-visible:ring-focus"
             )}
             onPointerDown={(e) => {
               e.preventDefault();
@@ -251,12 +252,13 @@ export function MeshOverlay() {
               e.currentTarget.releasePointerCapture(e.pointerId);
               dragTangent.current = null;
             }}
+            onPointerCancel={() => { dragTangent.current = null; }}
             onDoubleClick={() => {
               const store = useMeshStore.getState();
               store.commit();
               store.setNodeTangent(selectedId!, h.which, null);
             }}
-          />
+          ><span className="pointer-events-none h-3 w-3 rounded-full border border-black/40 bg-white shadow-md transition-transform group-hover:scale-125" /></button>
         ))}
 
       {/* Node handles */}
@@ -272,15 +274,7 @@ export function MeshOverlay() {
             }}
             type="button"
             aria-label={`Mesh point ${i + 1}, ${node.color}. Drag or use arrow keys to move.`}
-            className={cn(
-              "pointer-events-auto absolute left-0 top-0 h-4 w-4 cursor-grab touch-none rounded-full outline-none transition-[width,height] active:cursor-grabbing",
-              "focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-transparent",
-              selected
-                ? "h-5 w-5 ring-2 ring-white shadow-[0_0_0_4px_rgba(255,255,255,0.25),0_3px_12px_rgba(0,0,0,0.4)]"
-                : "ring-2 shadow-[0_2px_8px_rgba(0,0,0,0.35)] hover:h-5 hover:w-5",
-              !selected && (light ? "ring-black/45" : "ring-white/85")
-            )}
-            style={{ backgroundColor: node.color }}
+            className="pointer-events-auto group absolute left-0 top-0 flex h-11 w-11 items-center justify-center cursor-grab touch-none rounded-full outline-none active:cursor-grabbing focus-visible:ring-2 focus-visible:ring-focus"
             onPointerDown={(e) => {
               e.preventDefault();
               e.currentTarget.setPointerCapture(e.pointerId);
@@ -288,22 +282,26 @@ export function MeshOverlay() {
               store.selectNode(node.id);
               store.commit(); // one undo step for the whole drag
               const pos = normalize(e.clientX, e.clientY);
+              const current = engine.renderedPosition(store.doc, node.id) ?? node.position;
+              dragOffset.current = { x: current.x - pos.x, y: current.y - pos.y };
               engine.dragId = node.id;
-              engine.dragX = pos.x;
-              engine.dragY = pos.y;
+              engine.dragX = current.x;
+              engine.dragY = current.y;
             }}
             onPointerMove={(e) => {
               if (engine.dragId !== node.id) return;
               const pos = normalize(e.clientX, e.clientY);
-              engine.dragX = pos.x;
-              engine.dragY = pos.y;
+              engine.dragX = clamp(pos.x + dragOffset.current.x, -.25, 1.25);
+              engine.dragY = clamp(pos.y + dragOffset.current.y, -.25, 1.25);
             }}
             onPointerUp={(e) => {
               if (engine.dragId !== node.id) return;
               e.currentTarget.releasePointerCapture(e.pointerId);
               engine.dragId = null;
-              useMeshStore.getState().moveNode(node.id, normalize(e.clientX, e.clientY));
+              const pos = normalize(e.clientX, e.clientY);
+              useMeshStore.getState().moveNode(node.id, { x: clamp(pos.x + dragOffset.current.x, -.25, 1.25), y: clamp(pos.y + dragOffset.current.y, -.25, 1.25) });
             }}
+            onPointerCancel={() => { engine.dragId = null; }}
             onKeyDown={(e) => {
               const step = e.shiftKey ? 0.05 : 0.01;
               const delta: Record<string, [number, number]> = {
@@ -331,7 +329,11 @@ export function MeshOverlay() {
             }}
             onBlur={() => (keyboardCommitted.current = false)}
             onClick={() => useMeshStore.getState().selectNode(node.id)}
-          />
+          ><span className={cn(
+            "pointer-events-none rounded-full transition-[width,height]",
+            selected ? "h-5 w-5 ring-2 ring-white shadow-[0_0_0_4px_rgba(255,255,255,0.25),0_3px_12px_rgba(0,0,0,0.4)]" : "h-4 w-4 ring-2 shadow-[0_2px_8px_rgba(0,0,0,0.35)] group-hover:h-5 group-hover:w-5",
+            !selected && (light ? "ring-black/45" : "ring-white/85")
+          )} style={{ backgroundColor: node.color }} /></button>
         );
       })}
     </div>

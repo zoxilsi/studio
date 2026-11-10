@@ -1,3 +1,18 @@
+# JLK Wallpaper Studio
+
+An iPhone-first wallpaper editor built on the MIT-licensed **zoxilsi studio** creative engine. The original mesh, bezier editing, presets, effects, patterns, animation and exports remain available.
+
+- Six touch tool categories, expandable phone sheets, a tablet inspector, and unobstructed preview.
+- Editable stripes, diamonds, ellipses, horseshoes and rounded rectangles with 1/2/4-color fills, opacity, transforms and ordering.
+- Autosave, named local projects, backwards-compatible `.mesha` files, and high-resolution wallpaper export including shapes.
+- Standalone PWA metadata and GitHub Pages deployment; internet access is required to launch.
+
+Use Node 20–24 and pnpm 9.15.9: `pnpm install --frozen-lockfile`, then `pnpm dev`. Run `pnpm check` and `pnpm test:production` for production/subpath browser checks. See [deployment and testing instructions](docs/JLK_DEPLOYMENT.md). Browser automation uses Chromium emulation; it does not certify physical iOS Safari behavior.
+
+Original upstream documentation and attribution follow. The original MIT LICENSE is preserved.
+
+---
+
 # zoxilsi studio
 
 A browser-based mesh gradient editor built with next-gen web technologies. Design organic, flowing gradients by sculpting a bezier-patched lattice in real-time WebGL. Export to images, video, code, or as editable project files.
@@ -264,6 +279,6 @@ Designed and created by **zoxilsi** — [X (Twitter)](https://x.com/zoxilsi) · 
 
 ---
 
-**Status:** Production-ready. Open-source under MIT. Deployed on Vercel.
+**Upstream reference:** zoxilsi studio is open-source under MIT. The upstream Vercel deployment is separate from this JLK fork.
 
-Try it now: **[studio.zoxilsi.cc](https://studio.zoxilsi.cc)**
+Original upstream demo: **[studio.zoxilsi.cc](https://studio.zoxilsi.cc)**. See [JLK deployment instructions](docs/JLK_DEPLOYMENT.md) for this fork.

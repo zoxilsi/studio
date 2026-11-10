@@ -43,7 +43,9 @@ const IMG_FORMATS = [
 ] as const;
 
 const SIZES = [
-  { label: "4000×3000", w: 4000, h: 3000 },
+  { label: "iPhone", w: 1170, h: 2532 },
+  { label: "iPhone Pro Max", w: 1320, h: 2868 },
+  { label: "iPad", w: 2048, h: 2732 },
   { label: "Full HD", w: 1920, h: 1080 },
   { label: "4K", w: 3840, h: 2160 },
   { label: "Square 2048", w: 2048, h: 2048 },
@@ -82,16 +84,8 @@ type CodeFormat = (typeof CODE_FORMATS)[number]["value"];
 export function ExportDialog() {
   const open = useUiStore((s) => s.exportOpen);
   const setOpen = useUiStore((s) => s.setExportOpen);
-  const setSupportNudgeOpen = useUiStore((s) => s.setSupportNudgeOpen);
   const doc = useMeshStore((s) => s.doc);
   const applyDoc = useMeshStore((s) => s.applyDoc);
-
-  // Close export, then let the support nudge slide in — the small delay
-  // avoids two backdrops overlapping mid-transition.
-  const nudgeSupport = () => {
-    setOpen(false);
-    window.setTimeout(() => setSupportNudgeOpen(true), 350);
-  };
 
   const [tab, setTab] = useState<(typeof TABS)[number]["value"]>("image");
   const [format, setFormat] = useState<(typeof IMG_FORMATS)[number]["value"]>("png");
@@ -106,13 +100,18 @@ export function ExportDialog() {
   }, [open, doc.canvas.width, doc.canvas.height]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [result, setResult] = useState<{ blob: Blob; url: string; filename: string } | null>(null);
+  useEffect(() => () => { if (result) URL.revokeObjectURL(result.url); }, [result]);
+
 
   const [duration, setDuration] = useState<(typeof DURATIONS)[number]["value"]>("5");
-  const [videoSize, setVideoSize] = useState<(typeof VIDEO_SIZES)[number]["value"]>("2160");
-  const [videoFps, setVideoFps] = useState<(typeof VIDEO_FPS)[number]["value"]>("60");
+  const [videoSize, setVideoSize] = useState<(typeof VIDEO_SIZES)[number]["value"]>("1080");
+  const [videoFps, setVideoFps] = useState<(typeof VIDEO_FPS)[number]["value"]>("30");
   const [recProgress, setRecProgress] = useState<number | null>(null);
   const stopRef = useRef<(() => void) | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  useEffect(() => () => stopRef.current?.(), []);
+  useEffect(() => { if (!open) stopRef.current?.(); }, [open]);
 
   const [codeFormat, setCodeFormat] = useState<CodeFormat>("json");
   const [copied, setCopied] = useState(false);
@@ -131,6 +130,7 @@ export function ExportDialog() {
   const exportImage = async () => {
     setBusy(true);
     setError(null);
+    setResult(null);
     try {
       const blob = await renderImageBlob(
         doc,
@@ -140,10 +140,12 @@ export function ExportDialog() {
           height: clamp(Math.round(height) || 3000, 16, 8192),
           format,
         },
-        engine.flowTime
+        engine.flowTime,
+        engine.shaderTime
       );
-      downloadBlob(blob, `studio-gradient.${format}`);
-      nudgeSupport();
+      const filename = `jlk-wallpaper.${format}`;
+      setResult({ blob, filename, url: URL.createObjectURL(blob) });
+      downloadBlob(blob, filename);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Export failed.");
     } finally {
@@ -164,16 +166,17 @@ export function ExportDialog() {
     const w = makeEven(isPortrait ? shortEdge : shortEdge * ratio);
     const h = makeEven(isPortrait ? shortEdge / ratio : shortEdge);
 
+    let timer: number | undefined;
     try {
       const rec = renderVideoBlob(
         doc,
         { width: w, height: h, fps: Number(videoFps), seconds },
-        { time: engine.time, flowTime: engine.flowTime }
+        { time: engine.time, flowTime: engine.flowTime, shaderTime: engine.shaderTime }
       );
       stopRef.current = rec.stop;
       setRecProgress(0);
       const started = performance.now();
-      const timer = window.setInterval(() => {
+      timer = window.setInterval(() => {
         setRecProgress(Math.min(1, (performance.now() - started) / (seconds * 1000)));
       }, 100);
       const blob = await rec.done;
@@ -182,10 +185,13 @@ export function ExportDialog() {
       stopRef.current = null;
       const ext = rec.mimeType.includes("mp4") ? "mp4" : "webm";
       downloadBlob(blob, `studio-gradient-${sizeTemplate.label.toLowerCase()}.${ext}`);
-      nudgeSupport();
+      setError(null);
     } catch (err) {
       setRecProgress(null);
       setError(err instanceof Error ? err.message : "Recording failed.");
+    } finally {
+      window.clearInterval(timer);
+      stopRef.current = null;
     }
   };
 
@@ -200,7 +206,7 @@ export function ExportDialog() {
   };
 
   const codeExt: Record<CodeFormat, string> = {
-    json: "studio.json",
+    json: "mesha",
     css: "css",
     tailwind: "html",
     react: "tsx",
@@ -209,7 +215,7 @@ export function ExportDialog() {
   };
 
   return (
-    <Dialog open={open} onClose={() => setOpen(false)} title="Export">
+    <Dialog open={open} onClose={() => setOpen(false)} title="Save wallpaper">
       <div className="flex flex-col gap-5">
         <Segmented label="Format" options={TABS} value={tab} onChange={setTab} />
 
@@ -248,7 +254,7 @@ export function ExportDialog() {
                       max={8192}
                       value={value}
                       onChange={(e) => set(Number(e.target.value))}
-                      className="h-8 w-full rounded-lg border border-glass-border bg-glass-soft px-2.5 font-mono text-[11px] text-ink outline-none focus-visible:ring-2 focus-visible:ring-focus"
+                      className="h-11 min-w-0 w-full rounded-lg border border-glass-border bg-glass-soft px-2.5 font-mono text-[11px] text-ink outline-none focus-visible:ring-2 focus-visible:ring-focus"
                     />
                   </label>
                 ))}
@@ -257,8 +263,26 @@ export function ExportDialog() {
             <Segmented label="Choose format" options={IMG_FORMATS} value={format} onChange={setFormat} />
             <Button variant="primary" disabled={busy} onClick={exportImage} className="self-start">
               <DownloadIcon />
-              {busy ? "Rendering…" : `Download ${format.toUpperCase()}`}
+              {busy ? "Rendering…" : `Save ${format.toUpperCase()}`}
             </Button>
+            <p className="text-xs leading-relaxed text-muted">On iPhone or iPad, use Share image → Save Image after rendering, or press and hold the preview. Downloads are also available in Files. Exports are limited to 16 megapixels to protect device memory.</p>
+            {result && <div className="flex flex-col gap-3" role="status">
+              <p className="text-sm text-ink">Your wallpaper is ready.</p>
+              {/* A native image enables Safari's long-press Save Image action. */}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={result.url} alt="Exported wallpaper preview" className="max-h-64 max-w-full self-center rounded-xl object-contain" />
+              <div className="flex flex-wrap gap-2">
+                <Button variant="primary" onClick={async () => {
+                  const file = new File([result.blob], result.filename, { type: result.blob.type });
+                  if (navigator.canShare?.({ files: [file] })) {
+                    try { await navigator.share({ files: [file], title: "JLK Wallpaper" }); }
+                    catch (err) { if (!(err instanceof Error && err.name === "AbortError")) setError("Sharing is unavailable. Use Download or press and hold the preview."); }
+                  } else { downloadBlob(result.blob, result.filename); }
+                }}>Share image</Button>
+                <Button variant="outline" onClick={() => downloadBlob(result.blob, result.filename)}>Download again</Button>
+                <a className="inline-flex min-h-11 items-center px-3 text-sm underline" href={result.url} target="_blank" rel="noopener noreferrer">Open image</a>
+              </div>
+            </div>}
           </>
         )}
 
@@ -270,7 +294,7 @@ export function ExportDialog() {
               <Segmented label="Duration" options={DURATIONS} value={duration} onChange={setDuration} />
             </div>
             <p className="text-[11px] leading-relaxed text-faint">
-              Renders the animation offscreen at the full chosen resolution —
+              Video requires browser recording support and can use substantial memory. Start with 1080p / 30 fps on mobile. Renders the animation offscreen at the full chosen resolution —
               drift, hue flow and grain all move — and encodes at a bitrate
               matched to the pixel rate, so 4K stays crisp. Keep this tab
               visible while recording.
@@ -329,7 +353,7 @@ export function ExportDialog() {
               <input
                 ref={fileRef}
                 type="file"
-                accept=".json,.zoxilsi,application/json"
+                accept=".json,.mesha,.zoxilsi,application/json"
                 className="hidden"
                 onChange={(e) => {
                   const file = e.target.files?.[0];
@@ -340,13 +364,13 @@ export function ExportDialog() {
             </div>
             <p className="text-[11px] leading-relaxed text-faint">
               {codeFormat === "json"
-                ? "The project file restores the exact editable mesh — colors, curves, effects and animation."
-                : "CSS-based formats are a static approximation of the WebGL render. Use the Project format to re-edit the exact gradient."}
+                ? "The project file restores the exact editable mesh — colors, curves, shapes, effects and animation."
+                : "Code formats approximate the mesh only; shapes, patterns and effects require PNG/JPG/WebP or video. Use the Project format to re-edit the exact gradient."}
             </p>
           </>
         )}
 
-        {error && <p className="text-[11px] text-red-400">{error}</p>}
+        {error && <p role="alert" className="text-sm text-red-400">{error}</p>}
       </div>
     </Dialog>
   );

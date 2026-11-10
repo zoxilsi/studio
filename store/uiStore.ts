@@ -8,9 +8,15 @@
 import { create } from "zustand";
 import { isCompact } from "@/lib/utils";
 
+export type MobileTool = "Colors" | "Mesh" | "Shapes" | "Effects" | "Patterns" | "Presets";
+
 export type Theme = "dark" | "light";
 
 interface UiStore {
+  mobileTool: MobileTool | null;
+  preview: boolean;
+  setMobileTool: (tool: MobileTool | null) => void;
+  setPreview: (preview: boolean) => void;
   theme: Theme;
   inspectorOpen: boolean;
   presetsOpen: boolean;
@@ -46,6 +52,10 @@ function applyThemeToDom(theme: Theme) {
 }
 
 export const useUiStore = create<UiStore>((set, get) => ({
+  mobileTool: null,
+  preview: false,
+  setMobileTool: (mobileTool) => set({ mobileTool, preview: false, ...(mobileTool === "Mesh" || mobileTool === "Colors" ? { showHandles: true } : {}) }),
+  setPreview: (preview) => set({ preview, mobileTool: null }),
   theme: "dark",
   inspectorOpen: true,
   presetsOpen: true,

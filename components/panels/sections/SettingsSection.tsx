@@ -12,6 +12,8 @@ import type { Topology } from "@/types/gradient";
 import { clamp, cn } from "@/lib/utils";
 
 const SIZES = [
+  { label: "iPhone", w: 1170, h: 2532 },
+  { label: "iPad", w: 2048, h: 2732 },
   { label: "4:3", w: 4000, h: 3000 },
   { label: "16:9", w: 3840, h: 2160 },
   { label: "1:1", w: 3000, h: 3000 },

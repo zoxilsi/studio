@@ -1,10 +1,10 @@
 import type { NextConfig } from "next";
 
+const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
 const nextConfig: NextConfig = {
-  // Fully static export — the studio is 100% client-side (WebGL + Zustand),
-  // so it deploys to any static host / CDN (Cloudflare Pages, etc.).
   output: "export",
+  trailingSlash: true,
+  basePath,
   images: { unoptimized: true },
 };
-
 export default nextConfig;

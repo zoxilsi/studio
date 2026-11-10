@@ -14,6 +14,8 @@ import type {
   EffectsSettings,
   MeshDoc,
   Vec2,
+  WallpaperShape,
+  ShapeKind,
 } from "@/types/gradient";
 import {
   createNodes,
@@ -27,6 +29,8 @@ import { randomPalette, hslToHex } from "@/lib/color";
 import { createRng, valueNoise2 } from "@/lib/noise";
 import { useRecentColors } from "./recentColors";
 
+import { createShape, normalizeShapes } from "@/lib/shapes";
+
 const clone = (doc: MeshDoc): MeshDoc => structuredClone(doc);
 
 const DEFAULT_GRID: string[][] = [
@@ -38,6 +42,7 @@ const DEFAULT_GRID: string[][] = [
 
 export function defaultDoc(): MeshDoc {
   return {
+    shapes: [],
     rows: 3,
     cols: 3,
     nodes: createNodes(3, 3, (r, c) => DEFAULT_GRID[r][c]),
@@ -93,6 +98,13 @@ interface MeshStore {
   past: MeshDoc[];
   future: MeshDoc[];
   selectedId: string | null;
+  selectedShapeId: string | null;
+  selectShape: (id: string | null) => void;
+  addShape: (kind: ShapeKind) => void;
+  updateShape: (id: string, patch: Partial<WallpaperShape>) => void;
+  deleteShape: (id: string) => void;
+  duplicateShape: (id: string) => void;
+  reorderShape: (id: string, direction: -1 | 1) => void;
 
   /** Snapshot the current doc as an undo step (call before discrete edits). */
   commit: () => void;
@@ -122,6 +134,7 @@ export const useMeshStore = create<MeshStore>((set, get) => ({
   past: [],
   future: [],
   selectedId: null,
+  selectedShapeId: null,
 
   commit: () => set((s) => ({ past: [...s.past, clone(s.doc)], future: [] })),
 
@@ -131,6 +144,7 @@ export const useMeshStore = create<MeshStore>((set, get) => ({
       if (!prev) return s;
       return {
         doc: prev,
+        selectedShapeId: (prev.shapes ?? []).some((shape) => shape.id === s.selectedShapeId) ? s.selectedShapeId : null,
         past: s.past.slice(0, -1),
         future: [clone(s.doc), ...s.future],
         selectedId: prev.nodes.some((n) => n.id === s.selectedId) ? s.selectedId : null,
@@ -143,13 +157,45 @@ export const useMeshStore = create<MeshStore>((set, get) => ({
       if (!next) return s;
       return {
         doc: next,
+        selectedShapeId: (next.shapes ?? []).some((shape) => shape.id === s.selectedShapeId) ? s.selectedShapeId : null,
         past: [...s.past, clone(s.doc)],
         future: s.future.slice(1),
         selectedId: next.nodes.some((n) => n.id === s.selectedId) ? s.selectedId : null,
       };
     }),
 
-  selectNode: (id) => set({ selectedId: id }),
+  selectNode: (id) => set({ selectedId: id, selectedShapeId: null }),
+  selectShape: (id) => set({ selectedShapeId: id, selectedId: null }),
+  addShape: (kind) => {
+    const shapes = get().doc.shapes ?? [];
+    if (shapes.length >= 32) return;
+    get().commit();
+    const shape = createShape(kind);
+    set((s) => ({ doc: { ...s.doc, shapes: [...shapes, shape] }, selectedShapeId: shape.id, selectedId: null }));
+  },
+  updateShape: (id, patch) => set((s) => ({ doc: { ...s.doc, shapes: (s.doc.shapes ?? []).map((shape) => shape.id === id ? { ...shape, ...patch, id: shape.id } : shape) } })),
+  deleteShape: (id) => {
+    if (!(get().doc.shapes ?? []).some((shape) => shape.id === id)) return;
+    get().commit();
+    set((s) => ({ doc: { ...s.doc, shapes: (s.doc.shapes ?? []).filter((shape) => shape.id !== id) }, selectedShapeId: null }));
+  },
+  duplicateShape: (id) => {
+    const shapes = get().doc.shapes ?? [];
+    const source = shapes.find((shape) => shape.id === id);
+    if (!source || shapes.length >= 32) return;
+    get().commit();
+    const shape = { ...structuredClone(source), id: createShape(source.kind).id, x: Math.min(0.95, source.x + 0.05), y: Math.min(0.95, source.y + 0.05) };
+    set((s) => ({ doc: { ...s.doc, shapes: [...shapes, shape] }, selectedShapeId: shape.id }));
+  },
+  reorderShape: (id, direction) => {
+    const shapes = [...(get().doc.shapes ?? [])];
+    const index = shapes.findIndex((shape) => shape.id === id);
+    const next = index + direction;
+    if (index < 0 || next < 0 || next >= shapes.length) return;
+    get().commit();
+    [shapes[index], shapes[next]] = [shapes[next], shapes[index]];
+    set((s) => ({ doc: { ...s.doc, shapes } }));
+  },
 
   moveNode: (id, position) =>
     set((s) => ({
@@ -239,7 +285,7 @@ export const useMeshStore = create<MeshStore>((set, get) => ({
 
   applyDoc: (doc) => {
     get().commit();
-    set({ doc: clone(doc), selectedId: null });
+    set({ doc: { ...clone(doc), shapes: normalizeShapes(doc.shapes) }, selectedId: null, selectedShapeId: null });
   },
 
   randomize: () => {
