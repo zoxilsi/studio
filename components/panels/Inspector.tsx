@@ -10,6 +10,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Section } from "@/components/ui/Section";
 import { Button } from "@/components/ui/Button";
 import { DownloadIcon } from "@/components/ui/icons";
+import { ShapesPanel } from "./ShapesPanel";
 import { SettingsSection } from "./sections/SettingsSection";
 import { NodeSection } from "./sections/NodeSection";
 import { ColorSection } from "./sections/ColorSection";
@@ -39,6 +40,7 @@ export function Inspector() {
         >
           <div className="flex h-full w-[min(88vw,17.5rem)] flex-col lg:w-[17.5rem]">
             <div className="studio-scroll flex-1 overflow-y-auto overscroll-contain">
+              <Section title="Shapes"><ShapesPanel/></Section>
               <Section title="Settings" defaultOpen>
                 <SettingsSection />
               </Section>

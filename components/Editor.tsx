@@ -6,7 +6,7 @@
  * The WebGL artboard loads client-only with a soft placeholder.
  */
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import { MotionConfig } from "framer-motion";
 import { TopBar } from "@/components/layout/TopBar";
@@ -19,7 +19,8 @@ import { SupportDialog } from "@/components/dialogs/SupportDialog";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { useMeshStore } from "@/store/meshStore";
 import { useUiStore } from "@/store/uiStore";
-import { PRESETS } from "@/lib/presets";
+import { MobileHeader, MobileNavigation, MobilePanel } from "@/components/layout/MobileTools";
+import { ProjectAutosave, ProjectLibrary } from "@/components/projects/ProjectLibrary";
 
 const Artboard = dynamic(
   () => import("@/components/canvas/Artboard").then((m) => m.Artboard),
@@ -35,23 +36,17 @@ const Artboard = dynamic(
 
 export function Editor() {
   useKeyboardShortcuts();
+  const [projectsOpen, setProjectsOpen] = useState(false);
+  const mobileTool = useUiStore(s => s.mobileTool);
+  const preview = useUiStore(s => s.preview);
   const syncThemeFromDom = useUiStore((s) => s.syncThemeFromDom);
-  const presetsOpen = useUiStore((s) => s.presetsOpen);
-  const inspectorOpen = useUiStore((s) => s.inspectorOpen);
-  const closePanels = useUiStore((s) => s.closePanels);
 
   useEffect(() => {
     syncThemeFromDom();
 
-    // Apply Glass Mosaic as the default design on first load.
-    const glassMosaic = PRESETS.find((p) => p.name === "Glass Mosaic");
-    if (glassMosaic) {
-      useMeshStore.getState().applyDoc(glassMosaic.doc);
-    }
-
     // On compact screens the side panels are drawers — start with a clear canvas.
-    if (window.matchMedia("(max-width: 1023px)").matches) {
-      useUiStore.setState({ presetsOpen: false, inspectorOpen: false });
+    if (window.matchMedia("(max-width: 1279px)").matches) {
+      useUiStore.setState({ presetsOpen: false, inspectorOpen: false, showHandles: false });
     }
 
     // Honor reduced motion: start paused (pressing play still works —
@@ -63,10 +58,13 @@ export function Editor() {
 
   return (
     <MotionConfig reducedMotion="user">
-    <div className="flex h-dvh flex-col overflow-hidden bg-workspace font-sans text-ink">
-      <TopBar />
-      <div className="relative flex min-h-0 flex-1">
-        <PresetsRail />
+    <div className={`studio-shell flex h-dvh flex-col overflow-hidden bg-workspace font-sans text-ink ${mobileTool ? "has-tool" : ""} ${preview ? "is-preview" : ""}`}>
+      <ProjectAutosave/>
+      <MobileHeader onProjects={()=>setProjectsOpen(true)}/>
+      <div className="desktop-header"><TopBar /><button className="desktop-projects" onClick={()=>setProjectsOpen(true)}>Projects</button></div>
+
+      <div className="studio-workspace relative flex min-h-0 flex-1">
+        <div className="desktop-panel flex"><PresetsRail /></div>
         <main
           className="relative min-w-0 flex-1"
           onPointerDown={(e) => {
@@ -75,23 +73,18 @@ export function Editor() {
           }}
         >
           <Artboard />
-          <PlaybackBar />
+          {!preview && <PlaybackBar />}
           <p className="absolute bottom-5 left-5 hidden text-[10px] text-faint lg:block">
-            zoxilsi studio — mesh gradients, rendered in WebGL · © 2026
+            JLK Wallpaper Studio · Powered by zoxilsi
           </p>
         </main>
-        <Inspector />
+        <div className="desktop-panel flex"><Inspector /></div>
+        <MobilePanel/>
 
-        {/* Mobile: dim + tap-to-dismiss behind an open drawer. */}
-        {(presetsOpen || inspectorOpen) && (
-          <button
-            type="button"
-            aria-label="Close panel"
-            onClick={closePanels}
-            className="fixed inset-x-0 bottom-0 top-12 z-20 bg-black/50 backdrop-blur-sm lg:hidden"
-          />
-        )}
+
       </div>
+      <MobileNavigation/>
+      <ProjectLibrary open={projectsOpen} onClose={()=>setProjectsOpen(false)}/>
       <ExportDialog />
       <ShortcutsDialog />
       <SupportDialog />

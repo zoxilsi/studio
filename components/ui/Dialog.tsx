@@ -2,7 +2,7 @@
 
 /**
  * Minimal accessible modal: focus moves in on open, Escape and backdrop
- * close it, focus returns to the previously focused element.
+ * close it, Tab stays inside, and focus returns to the previous element.
  */
 
 import { useEffect, useRef, type ReactNode } from "react";
@@ -31,14 +31,46 @@ export function Dialog({ open, onClose, title, children, className }: DialogProp
   useEffect(() => {
     if (!open) return;
     restoreRef.current = document.activeElement as HTMLElement;
-    panelRef.current?.focus();
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    panelRef.current?.focus({ preventScroll: true });
+    const focusable = () => Array.from(panelRef.current?.querySelectorAll<HTMLElement>(
+      'button:not([disabled]), a[href], input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    ) ?? []).filter((element) => element.tabIndex >= 0 && element.getClientRects().length > 0 && getComputedStyle(element).visibility !== "hidden");
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onCloseRef.current();
+      if (e.key === "Escape") {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        onCloseRef.current();
+      }
+      if (e.key !== "Tab") return;
+      const elements = focusable();
+      const first = elements[0];
+      const last = elements[elements.length - 1];
+      if (!first) {
+        e.preventDefault();
+        panelRef.current?.focus({ preventScroll: true });
+      } else if (e.shiftKey && (document.activeElement === first || document.activeElement === panelRef.current)) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
     };
-    window.addEventListener("keydown", onKey);
+    const containFocus = (event: FocusEvent) => {
+      const panel = panelRef.current;
+      if (panel && event.target instanceof Node && !panel.contains(event.target)) {
+        (focusable()[0] ?? panel).focus({ preventScroll: true });
+      }
+    };
+    window.addEventListener("keydown", onKey, true);
+    document.addEventListener("focusin", containFocus);
     return () => {
-      window.removeEventListener("keydown", onKey);
-      restoreRef.current?.focus?.();
+      window.removeEventListener("keydown", onKey, true);
+      document.removeEventListener("focusin", containFocus);
+      document.body.style.overflow = previousOverflow;
+      if (restoreRef.current?.isConnected) restoreRef.current.focus({ preventScroll: true });
     };
   }, [open]);
 
@@ -70,13 +102,13 @@ export function Dialog({ open, onClose, title, children, className }: DialogProp
               tabIndex={-1}
               className="flex max-h-[85dvh] flex-col overflow-hidden outline-none"
             >
-              <header className="flex items-center justify-between border-b border-glass-border px-5 py-3">
+              <header className="flex shrink-0 items-center justify-between border-b border-glass-border px-5 py-3">
                 <h2 className="text-sm font-semibold tracking-tight text-ink">{title}</h2>
-                <Button size="icon" aria-label={`Close ${title}`} onClick={onClose}>
+                <Button size="icon" className="min-h-11 min-w-11" aria-label={`Close ${title}`} onClick={onClose}>
                   <CloseIcon />
                 </Button>
               </header>
-              <div className="studio-scroll flex-1 overflow-y-auto p-5">{children}</div>
+              <div className="studio-scroll min-h-0 flex-1 overscroll-contain overflow-y-auto p-5">{children}</div>
             </GlassPanel>
           </motion.div>
         </motion.div>

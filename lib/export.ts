@@ -9,6 +9,7 @@
  */
 
 import * as THREE from "three";
+import { drawShapes, normalizeShapes } from "./shapes";
 import type { ExportImageOptions, MeshDoc } from "@/types/gradient";
 import { fillNodeBuffersAt, MAX_NODES } from "./engine";
 import { createSurfaceBuffers, evalSurface, subdivisionFor } from "./mesh";
@@ -33,8 +34,10 @@ export async function renderImageBlob(
   doc: MeshDoc,
   time: number,
   opts: ExportImageOptions,
-  flowTime = 0
+  flowTime = 0,
+  shaderTime = time
 ): Promise<Blob> {
+  validateExportSize(opts.width, opts.height);
   const canvas = document.createElement("canvas");
   canvas.width = opts.width;
   canvas.height = opts.height;
@@ -46,6 +49,10 @@ export async function renderImageBlob(
     preserveDrawingBuffer: true,
     powerPreference: "high-performance",
   });
+  if (Math.max(opts.width, opts.height) > renderer.capabilities.maxTextureSize) {
+    renderer.dispose();
+    throw new Error("This device cannot render that resolution. Choose a smaller wallpaper size.");
+  }
   renderer.setSize(opts.width, opts.height, false);
 
   // Pass 1: mesh at export-grade subdivision
@@ -82,7 +89,7 @@ export async function renderImageBlob(
   const postUniforms = createPostUniforms();
   applyEffectsUniforms(postUniforms, doc.effects);
   postUniforms.uResolution.value = [opts.width, opts.height];
-  postUniforms.uTime.value = time;
+  postUniforms.uTime.value = shaderTime;
   postUniforms.tDiffuse.value = target.texture;
   const postMaterial = new THREE.ShaderMaterial({
     vertexShader: postVertexShader,
@@ -109,8 +116,15 @@ export async function renderImageBlob(
     renderer.setRenderTarget(null);
     renderer.render(postScene, camera);
 
+    const output = document.createElement("canvas");
+    output.width = opts.width;
+    output.height = opts.height;
+    const context = output.getContext("2d");
+    if (!context) throw new Error("Image export is unavailable on this device.");
+    context.drawImage(canvas, 0, 0);
+    drawShapes(context, doc.shapes ?? [], opts.width, opts.height);
     const blob = await new Promise<Blob | null>((resolve) =>
-      canvas.toBlob(resolve, MIME[opts.format], 0.95)
+      output.toBlob(resolve, MIME[opts.format], 0.95)
     );
     if (!blob) throw new Error("Canvas export failed — the browser returned no data.");
     return blob;
@@ -121,6 +135,14 @@ export async function renderImageBlob(
     postMaterial.dispose();
     target.dispose();
     renderer.dispose();
+    renderer.forceContextLoss();
+  }
+}
+
+/** Bound allocation before creating GPU/CPU buffers, especially on iOS. */
+export function validateExportSize(width: number, height: number) {
+  if (!Number.isInteger(width) || !Number.isInteger(height) || width < 16 || height < 16 || width > 8192 || height > 8192 || width * height > 16_000_000) {
+    throw new Error("Choose dimensions from 16 to 8192 px, up to 16 megapixels. Smaller exports use less device memory.");
   }
 }
 
@@ -166,9 +188,19 @@ function pickRecorderMime(): string {
 export function renderVideoBlob(
   doc: MeshDoc,
   opts: VideoExportOptions,
-  start: { time: number; flowTime: number }
+  start: { time: number; flowTime: number; shaderTime?: number }
 ): VideoRecording {
+  validateExportSize(opts.width, opts.height);
+  if (opts.width * opts.height > 9_000_000 || !Number.isFinite(opts.seconds) || opts.seconds < 1 || opts.seconds > 20) {
+    throw new Error("Choose a video under 9 megapixels and 20 seconds. For large wallpapers, export a still image.");
+  }
+  if (![30, 60].includes(opts.fps)) throw new Error("Choose 30 or 60 fps.");
   const mimeType = pickRecorderMime();
+  const output = document.createElement("canvas");
+  output.width = opts.width;
+  output.height = opts.height;
+  const context = output.getContext("2d");
+  if (!context || !output.captureStream) throw new Error("Video recording is unavailable. Export a PNG instead.");
 
   // Recording always animates, whatever the editor's play state.
   const animDoc: MeshDoc = {
@@ -244,16 +276,24 @@ export function renderVideoBlob(
     80_000_000,
     Math.max(12_000_000, Math.round(opts.width * opts.height * opts.fps * 0.15))
   );
-  const stream = canvas.captureStream(opts.fps);
-  const recorder = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: bitrate });
+  const stream = output.captureStream(opts.fps);
+  let recorder: MediaRecorder;
+  try {
+    recorder = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: bitrate });
+  } catch (error) {
+    stream.getTracks().forEach((track) => track.stop());
+    geometry.dispose(); quadGeometry.dispose(); meshMaterial.dispose(); postMaterial.dispose(); target.dispose(); renderer.dispose(); renderer.forceContextLoss();
+    throw error;
+  }
   const chunks: BlobPart[] = [];
   recorder.ondataavailable = (e) => e.data.size && chunks.push(e.data);
 
+  let timer = 0;
   let raf = 0;
   let last = performance.now();
   let time = start.time;
   let flow = start.flowTime;
-  let shader = 0;
+  let shader = start.shaderTime ?? 0;
   const dir = doc.animation.reversed ? -1 : 1;
 
   const renderFrame = () => {
@@ -275,9 +315,12 @@ export function renderVideoBlob(
     renderer.render(meshScene, camera);
     renderer.setRenderTarget(null);
     renderer.render(postScene, camera);
+    context.drawImage(canvas, 0, 0);
+    drawShapes(context, doc.shapes ?? [], opts.width, opts.height);
   };
 
   const dispose = () => {
+    window.clearTimeout(timer);
     cancelAnimationFrame(raf);
     stream.getTracks().forEach((t) => t.stop());
     geometry.dispose();
@@ -286,12 +329,15 @@ export function renderVideoBlob(
     postMaterial.dispose();
     target.dispose();
     renderer.dispose();
+    renderer.forceContextLoss();
   };
 
   const done = new Promise<Blob>((resolve, reject) => {
     recorder.onstop = () => {
       dispose();
-      resolve(new Blob(chunks, { type: mimeType }));
+      const blob = new Blob(chunks, { type: mimeType });
+      if (blob.size) resolve(blob);
+      else reject(new Error("The browser recorded no frames. Keep this tab visible and try a smaller resolution."));
     };
     recorder.onerror = () => {
       dispose();
@@ -299,9 +345,14 @@ export function renderVideoBlob(
     };
   });
 
-  renderFrame();
-  recorder.start(200);
-  const timer = window.setTimeout(() => {
+  try {
+    renderFrame();
+    recorder.start(200);
+  } catch (error) {
+    dispose();
+    throw error;
+  }
+  timer = window.setTimeout(() => {
     if (recorder.state !== "inactive") recorder.stop();
   }, opts.seconds * 1000);
 
@@ -433,7 +484,7 @@ export function exportHtml(doc: MeshDoc): string {
 /* ------------------------------ project files ----------------------------- */
 
 export function exportJson(doc: MeshDoc): string {
-  return JSON.stringify({ app: "zoxilsi-studio", version: 2, doc }, null, 2);
+  return JSON.stringify({ app: "jlk-wallpaper-studio", version: 3, doc }, null, 2);
 }
 
 export function parseImportedJson(text: string): MeshDoc {
@@ -442,6 +493,7 @@ export function parseImportedJson(text: string): MeshDoc {
   if (
     !Number.isInteger(doc?.rows) ||
     !Number.isInteger(doc?.cols) ||
+    doc.rows < 2 || doc.rows > 12 || doc.cols < 2 || doc.cols > 12 ||
     !Array.isArray(doc?.nodes) ||
     doc.nodes.length !== doc.rows * doc.cols ||
     !doc?.canvas ||
@@ -450,7 +502,13 @@ export function parseImportedJson(text: string): MeshDoc {
   ) {
     throw new Error("Not a valid zoxilsi studio project file.");
   }
+  const validColor = (value: unknown) => typeof value === "string" && /^#[0-9a-f]{6}$/i.test(value);
+  const validPoint = (value: unknown) => typeof value === "object" && value !== null && Number.isFinite((value as { x: number }).x) && Number.isFinite((value as { y: number }).y);
+  if (!doc.nodes.every((node: { id: unknown; color: unknown; position: unknown; tu: unknown; tv: unknown; phase: unknown }) => typeof node.id === "string" && validColor(node.color) && validPoint(node.position) && (node.tu == null || validPoint(node.tu)) && (node.tv == null || validPoint(node.tv)) && Number.isFinite(node.phase)) || !validColor(doc.canvas.backgroundColor) || !Number.isFinite(doc.canvas.width) || !Number.isFinite(doc.canvas.height) || doc.canvas.width < 16 || doc.canvas.height < 16 || doc.canvas.width > 8192 || doc.canvas.height > 8192) {
+    throw new Error("The project contains invalid mesh or canvas data.");
+  }
   const parsed = doc as MeshDoc;
+  parsed.shapes = normalizeShapes(doc.shapes);
   // Files saved before hue flow existed stay exactly as they looked.
   if (typeof parsed.animation.hueFlow !== "number") parsed.animation.hueFlow = 0;
   return parsed;
@@ -463,8 +521,10 @@ export function downloadBlob(blob: Blob, filename: string) {
   const a = document.createElement("a");
   a.href = url;
   a.download = filename;
+  document.body.appendChild(a);
   a.click();
-  window.setTimeout(() => URL.revokeObjectURL(url), 4000);
+  a.remove();
+  window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
 }
 
 export function downloadText(text: string, filename: string, type = "text/plain") {

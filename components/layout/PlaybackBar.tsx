@@ -39,8 +39,8 @@ export function PlaybackBar() {
       animate={{ y: 0, opacity: 1 }}
       transition={{ type: "spring", stiffness: 260, damping: 28, delay: 0.15 }}
       className={cn(
-        "pointer-events-none absolute inset-x-0 bottom-4 z-30 flex justify-center px-3",
-        panelOpen && "max-lg:hidden"
+        "playback-bar pointer-events-none absolute inset-x-0 bottom-4 z-30 flex justify-center px-3",
+        panelOpen && "max-xl:hidden"
       )}
     >
       <GlassPanel className="pointer-events-auto flex items-center gap-1 rounded-full px-2 py-1.5">

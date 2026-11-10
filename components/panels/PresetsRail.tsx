@@ -22,15 +22,20 @@ import { PlusIcon, TrashIcon, CheckIcon } from "@/components/ui/icons";
 import type { PresetCategory } from "@/types/gradient";
 import { cn, isCompact } from "@/lib/utils";
 
-export function PresetsRail() {
+const thumbnailCache = new Map<string, string>();
+
+export function PresetsRail({ embedded = false }: { embedded?: boolean }) {
   const open = useUiStore((s) => s.presetsOpen);
   const closePanels = useUiStore((s) => s.closePanels);
   const applyDoc = useMeshStore((s) => s.applyDoc);
 
   // Applying a preset on a compact screen dismisses the drawer to reveal the canvas.
-  const applyPreset = (doc: Parameters<typeof applyDoc>[0]) => {
-    applyDoc(doc);
+  const applyPreset = (doc: Parameters<typeof applyDoc>[0], saved = false) => {
+    const current = useMeshStore.getState().doc;
+    // A palette/preset changes the artwork, not the chosen wallpaper format.
+    applyDoc(saved ? doc : { ...doc, shapes: current.shapes, canvas: embedded ? { ...doc.canvas, width: current.canvas.width, height: current.canvas.height } : doc.canvas });
     if (isCompact()) closePanels();
+    if (embedded) useUiStore.getState().setMobileTool(null);
   };
   const [category, setCategory] = useState<PresetCategory | "All">("All");
   const [thumbs, setThumbs] = useState<Record<string, string>>({});
@@ -45,16 +50,31 @@ export function PresetsRail() {
   }, [open]);
 
   useEffect(() => {
-    // Rasterize lazily after mount so SSR/hydration stay clean. Reuse
-    // already-rasterized thumbnails so saving/deleting a user preset doesn't
-    // re-rasterize the entire built-in library.
-    setThumbs((prev) => {
+    if (!open && !embedded) return;
+    // Yield between small batches: thumbnail rasterization must never block
+    // the first WebGL frame, touch events, or drawer animations.
+    const presets = [...PRESETS, ...userPresets];
+    let index = 0;
+    let cancelled = false;
+    let timer: ReturnType<typeof setTimeout>;
+    const batch = () => {
+      if (cancelled) return;
       const next: Record<string, string> = {};
-      for (const p of PRESETS) next[p.id] = prev[p.id] ?? renderThumbnail(p.doc, 128, 96);
-      for (const p of userPresets) next[p.id] = prev[p.id] ?? renderThumbnail(p.doc, 128, 96);
-      return next;
-    });
-  }, [userPresets]);
+      for (let end = Math.min(index + 4, presets.length); index < end; index++) {
+        const preset = presets[index];
+        let thumbnail = thumbnailCache.get(preset.id);
+        if (!thumbnail) {
+          thumbnail = renderThumbnail(preset.doc, 128, 96);
+          thumbnailCache.set(preset.id, thumbnail);
+        }
+        next[preset.id] = thumbnail;
+      }
+      setThumbs(previous => ({ ...previous, ...next }));
+      if (index < presets.length) timer = setTimeout(batch, 24);
+    };
+    timer = setTimeout(batch, 100);
+    return () => { cancelled = true; clearTimeout(timer); };
+  }, [open, embedded, userPresets]);
 
   const beginSave = () => {
     setName("");
@@ -81,13 +101,13 @@ export function PresetsRail() {
 
   return (
     <AnimatePresence initial={false}>
-      {open && (
+      {(open || embedded) && (
         <motion.aside
           initial={{ width: 0, opacity: 0 }}
           animate={{ width: "auto", opacity: 1 }}
           exit={{ width: 0, opacity: 0 }}
           transition={{ duration: 0.25, ease: [0.32, 0.72, 0, 1] }}
-          className="z-30 shrink-0 overflow-hidden border-r border-glass-border bg-glass backdrop-blur-2xl lg:h-full max-lg:fixed max-lg:bottom-0 max-lg:left-0 max-lg:top-12 max-lg:shadow-panel"
+          className={embedded ? "embedded-presets" : "z-30 shrink-0 overflow-hidden border-r border-glass-border bg-glass backdrop-blur-2xl lg:h-full max-lg:fixed max-lg:bottom-0 max-lg:left-0 max-lg:top-12 max-lg:shadow-panel"}
           aria-label="Preset browser"
         >
           <div className="flex h-full w-[min(82vw,15rem)] flex-col lg:w-60">
@@ -157,11 +177,11 @@ export function PresetsRail() {
                       transition={{ delay: Math.min(i * 0.02, 0.3), duration: 0.25 }}
                       whileHover={{ y: -2, scale: 1.03 }}
                       whileTap={{ scale: 0.96 }}
-                      onClick={() => applyPreset(preset.doc)}
+                      onClick={() => applyPreset(preset.doc, true)}
                       onKeyDown={(e) => {
                         if (e.key === "Enter" || e.key === " ") {
                           e.preventDefault();
-                          applyPreset(preset.doc);
+                          applyPreset(preset.doc, true);
                         }
                       }}
                       className={cn(

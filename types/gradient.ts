@@ -124,8 +124,28 @@ export interface CanvasSettings {
   backgroundColor: string;
 }
 
+export type ShapeKind = "line" | "diamond" | "ellipse" | "arch" | "rectangle";
+
+/** Independent artwork overlay. Coordinates are normalized, with y down. */
+export interface WallpaperShape {
+  id: string;
+  kind: ShapeKind;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  rotation: number;
+  opacity: number;
+  colors: string[];
+  /** Band thickness / corner radius as a proportion of the smaller dimension. */
+  thickness: number;
+  radius: number;
+}
+
 /** The complete, serializable gradient document. */
 export interface MeshDoc {
+  /** Optional for legacy .mesha documents; new edits always write an array. */
+  shapes?: WallpaperShape[];
   rows: number;
   cols: number;
   /** rows × cols nodes, row-major (row 0 = bottom). */

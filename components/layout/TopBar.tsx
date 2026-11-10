@@ -145,7 +145,7 @@ export function TopBar() {
     <header className="relative z-40 flex h-12 shrink-0 items-center justify-between gap-2 border-b border-glass-border bg-glass px-2 backdrop-blur-2xl backdrop-saturate-150 sm:px-3">
       <div className="flex min-w-0 items-center gap-2.5">
         <span className="studio-orb h-5 w-5 shrink-0 rounded-full shadow-lift" aria-hidden />
-        <span className="hidden truncate text-[14px] font-semibold tracking-tight text-ink sm:inline">zoxilsi studio</span>
+        <span className="hidden truncate text-[14px] font-semibold tracking-tight text-ink sm:inline">JLK Studio</span>
         <span className="hidden text-[11px] text-faint lg:inline">Mesh gradient studio</span>
       </div>
 

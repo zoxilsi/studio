@@ -74,6 +74,7 @@ export function Slider({
         aria-label={label}
         onPointerDown={beginGesture}
         onPointerUp={endGesture}
+        onPointerCancel={endGesture}
         onKeyDown={(e) => {
           if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End"].includes(e.key)) {
             beginGesture();
